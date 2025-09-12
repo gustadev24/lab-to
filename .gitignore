@@ -1,2 +1,6 @@
-# C++ build files
+# C++ build output
 **/*.out
+build/
+
+# Clangd
+.cache/
