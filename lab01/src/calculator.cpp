@@ -4,5 +4,5 @@
 
 double Calculator::add(initializer_list<double> nums) {
   SumOperation sum(nums);
-  return sum.compute();
+  return sum.getResult();
 }

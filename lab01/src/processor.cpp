@@ -1,4 +1,6 @@
 #include "processor.h"
+#include "calculator.h"
+#include "operations/sum.h"
 #include <regex>
 #include <stack>
 #include <string>
@@ -77,7 +79,50 @@ void OperationsProcessor::parse() {
 void OperationsProcessor::compute() {
   // 1. Parse expression
   this->parse();
-  // 2. Use a stack to compute
+  // 2. Solve the expression
+  this->solve();
+}
+
+void OperationsProcessor::solve() {
+  std::stack<std::string> stack;
+  for (std::string token : this->postfix) {
+    if (std::regex_match(token, IS_NUMBER)) {
+      stack.push(token);
+    } else {
+      if (stack.size() < 2) {
+        throw std::runtime_error("Invalid expression: insufficient values for operation " + token);
+      }
+      double right = std::stod(stack.top());
+      stack.pop();
+      double left = std::stod(stack.top());
+      stack.pop();
+
+      double result;
+      Calculator calc;
+      if (token == "+") {
+        result = calc.add({left, right});
+      }
+      // } else if (token == "-") {
+      //   result = left - right;
+      // } else if (token == "*") {
+      //   result = left * right;
+      // } else if (token == "/") {
+      //   if (right == 0) {
+      //     throw std::runtime_error("Division by zero");
+      //   }
+      //   result = left / right;
+      // } else {
+      //   throw std::runtime_error("Unknown operator: " + token);
+      // }
+      stack.push(std::to_string(result));
+    }
+  }
+
+  if (stack.size() != 1) {
+    throw std::runtime_error("Invalid expression: leftover values in stack");
+  }
+  this->result = std::stod(stack.top());
+  stack.pop();
 }
 
 double OperationsProcessor::getResult() const {

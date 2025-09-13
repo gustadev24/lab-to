@@ -11,6 +11,6 @@ class Calculator {
     template<typename Iterator>
     double add(Iterator begin, Iterator end) {
       SumOperation sum(begin, end);
-      return sum.compute();
+      return sum.getResult();
     };
 };

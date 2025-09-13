@@ -21,6 +21,8 @@ class OperationsProcessor {
 
     void toPostfix();
 
+    void solve();
+
     int precedence(const std::string& op);
 
     FRIEND_TEST(OperationsProcessorTest, TokenizeBasic);
