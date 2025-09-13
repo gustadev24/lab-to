@@ -7,7 +7,7 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     src/*.cpp
 )
 
-add_executable(lab01 main.cpp ${SOURCES})
+add_executable(lab01 src/main.cpp ${SOURCES})
 
 target_include_directories(lab01
   PRIVATE

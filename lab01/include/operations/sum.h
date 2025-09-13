@@ -1,4 +1,4 @@
-#include <initializer_list>
+#pragma once
 #include <vector>
 using namespace std;
 
@@ -7,7 +7,14 @@ class SumOperation {
     vector<double> values;
 
   public:
-    SumOperation(initializer_list<double> nums);
+
+    SumOperation(initializer_list<double> nums): values(nums) {};
+
+    template<typename Iterator>
+    SumOperation(Iterator begin, Iterator end): values(begin, end) {};
+
+    template<typename Container>
+    SumOperation(const Container& container): values(container.begin(), container.end()) {};
 
     double compute() const;
 };
