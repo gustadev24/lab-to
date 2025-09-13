@@ -27,6 +27,7 @@ class OperationsProcessor {
 
     FRIEND_TEST(OperationsProcessorTest, TokenizeBasic);
     FRIEND_TEST(OperationsProcessorTest, PostfixBasic);
+    FRIEND_TEST(OperationsProcessorTest, ComputeBasic);
 
   public:
 

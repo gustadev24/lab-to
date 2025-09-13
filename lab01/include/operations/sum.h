@@ -7,7 +7,7 @@ class SumOperation {
     std::vector<double> values;
     std::optional<double> result;
 
-    double compute() const;
+    void compute();
 
   public:
 

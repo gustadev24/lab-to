@@ -126,7 +126,10 @@ void OperationsProcessor::solve() {
 }
 
 double OperationsProcessor::getResult() const {
-  return 0;
+  if (!this->result.has_value()) {
+    throw std::runtime_error("Result not computed");
+  }
+  return this->result.value();
 }
 
 const std::vector<std::string>& OperationsProcessor::getTokens() const {

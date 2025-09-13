@@ -23,3 +23,9 @@ TEST(OperationsProcessorTest, PostfixBasic) {
   EXPECT_EQ(op.postfix[3], "*");
   EXPECT_EQ(op.postfix[4], "+");
 }
+
+TEST(OperationsProcessorTest, ComputeBasic) {
+  OperationsProcessor op("3 + 4 + 2");
+  std::cout << "Result: " << op.getResult() << std::endl;
+  EXPECT_DOUBLE_EQ(op.getResult(), 9.0);
+}
