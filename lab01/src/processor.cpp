@@ -1,6 +1,5 @@
 #include "processor.h"
 #include "calculator.h"
-#include "operations/sum.h"
 #include <regex>
 #include <stack>
 #include <string>
@@ -98,22 +97,8 @@ void OperationsProcessor::solve() {
       stack.pop();
 
       double result;
-      Calculator calc;
-      if (token == "+") {
-        result = calc.add({left, right});
-      }
-      // } else if (token == "-") {
-      //   result = left - right;
-      // } else if (token == "*") {
-      //   result = left * right;
-      // } else if (token == "/") {
-      //   if (right == 0) {
-      //     throw std::runtime_error("Division by zero");
-      //   }
-      //   result = left / right;
-      // } else {
-      //   throw std::runtime_error("Unknown operator: " + token);
-      // }
+      Calculator calc(left, right, token);
+      result = calc.getResult();
       stack.push(std::to_string(result));
     }
   }

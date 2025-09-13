@@ -1,16 +1,18 @@
 #pragma once
-#include <initializer_list>
-#include "operations/sum.h"
-
-using namespace std;
+#include <optional>
+#include <string>
 
 class Calculator {
-  public:
-    double add(initializer_list<double> nums);
+  private:
+    std::optional<double> result;
 
-    template<typename Iterator>
-    double add(Iterator begin, Iterator end) {
-      SumOperation sum(begin, end);
-      return sum.getResult();
-    };
+    void compute();
+
+    double add(std::initializer_list<double> nums);
+
+  public:
+    Calculator(std::string n1, std::string n2, std::string op);
+    Calculator(double n1, double n2, std::string op);
+
+    double getResult() const;
 };
