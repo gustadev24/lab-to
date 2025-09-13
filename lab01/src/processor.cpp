@@ -3,8 +3,9 @@
 #include <string>
 #include <vector>
 
-OperationsProcessor::OperationsProcessor(const std::string& input): input(input) {
-  this->compute();
+OperationsProcessor::OperationsProcessor(const std::string& input, bool compute): input(input) {
+  if (compute)
+    this->compute();
 }
 
 void OperationsProcessor::clear() {
@@ -15,18 +16,19 @@ void OperationsProcessor::clear() {
 void OperationsProcessor::tokenize() {
   std::string currentToken;
   std::string pendingSign;
-  std::regex validOperators("[\\+\\-\\*\\/\\(\\)]");
+  std::regex validOperators("[\\+\\-\\*\\/]");
   for (char c : this->input) {
     if (c == ' ') continue;
 
     std::string currentChar(1, c);
 
-    if (std::regex_match(currentChar, validOperators)) {
+    bool isParenthesis = (currentChar == "(" || currentChar == ")");
+    if (std::regex_match(currentChar, validOperators) || isParenthesis) {
       if (!currentToken.empty()) {
         this->tokens.push_back(currentToken);
         currentToken.clear();
       }
-      if (currentChar == "(" || currentChar == ")") {
+      if (isParenthesis) {
         this->tokens.push_back(currentChar);
         continue;
       }
@@ -69,8 +71,24 @@ void OperationsProcessor::parse() {
   this->toPostfix();
 }
 
-double OperationsProcessor::compute() {
+void OperationsProcessor::compute() {
   // 1. Parse expression
   this->parse();
   // 2. Use a stack to compute
+}
+
+double OperationsProcessor::getResult() const {
+  return 0;
+}
+
+const std::vector<std::string>& OperationsProcessor::getTokens() const {
+  return this->tokens;
+}
+
+const std::vector<std::string>& OperationsProcessor::getPostfix() const {
+  return this->postfix;
+}
+
+void OperationsProcessor::toPostfix() {
+
 }
