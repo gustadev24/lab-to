@@ -4,8 +4,6 @@
 #include <vector>
 #include <stdexcept>
 
-using namespace std;
-
 double OperationsProcessor::process(const string& input) {
     istringstream iss(input);
     vector<double> numbers;

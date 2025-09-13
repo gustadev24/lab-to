@@ -1,0 +1,18 @@
+BUILD_DIR=build
+
+.PHONY: all compile run
+
+all: compile run
+
+compile: $(BUILD_DIR)
+	cmake -S . -B build
+	make -C $(BUILD_DIR)
+
+run:
+	./$(BUILD_DIR)/lab01
+
+clean: $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)

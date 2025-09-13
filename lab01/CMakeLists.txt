@@ -7,6 +7,8 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     src/*.cpp
 )
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_executable(lab01 src/main.cpp ${SOURCES})
 
 target_include_directories(lab01
