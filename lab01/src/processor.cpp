@@ -1,7 +1,11 @@
 #include "processor.h"
 #include <regex>
+#include <stack>
 #include <string>
 #include <vector>
+
+const std::regex OperationsProcessor::VALID_OPERATORS("[\\+\\-\\*\\/]");
+const std::regex OperationsProcessor::IS_NUMBER("^[-\\+]?\\d+(\\.\\d+)?$");
 
 OperationsProcessor::OperationsProcessor(const std::string& input, bool compute): input(input) {
   if (compute)
@@ -16,14 +20,13 @@ void OperationsProcessor::clear() {
 void OperationsProcessor::tokenize() {
   std::string currentToken;
   std::string pendingSign;
-  std::regex validOperators("[\\+\\-\\*\\/]");
   for (char c : this->input) {
     if (c == ' ') continue;
 
     std::string currentChar(1, c);
 
     bool isParenthesis = (currentChar == "(" || currentChar == ")");
-    if (std::regex_match(currentChar, validOperators) || isParenthesis) {
+    if (std::regex_match(currentChar, VALID_OPERATORS) || isParenthesis) {
       if (!currentToken.empty()) {
         this->tokens.push_back(currentToken);
         currentToken.clear();
@@ -34,7 +37,7 @@ void OperationsProcessor::tokenize() {
       }
 
       bool allowedPlace = this->tokens.empty() || this->tokens.back() == "(" ||
-                          std::regex_match(this->tokens.back(), validOperators);
+                          std::regex_match(this->tokens.back(), VALID_OPERATORS);
 
       if ((currentChar == "+" || currentChar == "-") && allowedPlace) {
         pendingSign += currentChar;
@@ -90,5 +93,56 @@ const std::vector<std::string>& OperationsProcessor::getPostfix() const {
 }
 
 void OperationsProcessor::toPostfix() {
+  std::stack<std::string> stack;
+  for (auto& token : this->tokens) {
+    if (std::regex_match(token, IS_NUMBER)) {
+      this->postfix.push_back(token);
+      continue;
+    }
 
+    if (std::regex_match(token, VALID_OPERATORS)) {
+      while(!stack.empty() && std::regex_match(stack.top(), VALID_OPERATORS)) {
+        std::string top = stack.top();
+        if (this->precedence(top) >= this->precedence(token)) {
+          stack.pop();
+          this->postfix.push_back(top);
+        } else break;
+      }
+      stack.push(token);
+      continue;
+    }
+
+    if (token == "(") {
+      stack.push(token);
+      continue;
+    }
+
+    if(token == ")") {
+      while (!stack.empty() && stack.top() != "(") {
+        this->postfix.push_back(stack.top());
+        stack.pop();
+      }
+      if (stack.empty()) {
+        throw std::runtime_error("Mismatched parentheses");
+      }
+      // Pop the '(' from the stack
+      stack.pop();
+      continue;
+    }
+
+    throw std::runtime_error("Invalid token: " + token);
+  }
+  while (!stack.empty()) {
+    if (stack.top() == "(") {
+      throw std::runtime_error("Mismatched parentheses");
+    }
+    this->postfix.push_back(stack.top());
+    stack.pop();
+  }
+}
+
+int OperationsProcessor::precedence(const std::string& op) {
+  if (op == "+" || op == "-") return 1;
+  if (op == "*" || op == "/") return 2;
+  return 0;
 }

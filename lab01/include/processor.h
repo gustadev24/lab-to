@@ -1,6 +1,7 @@
 #pragma once
 #include <gtest/gtest_prod.h>
 #include <optional>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -20,10 +21,17 @@ class OperationsProcessor {
 
     void toPostfix();
 
+    int precedence(const std::string& op);
+
     FRIEND_TEST(OperationsProcessorTest, TokenizeBasic);
+    FRIEND_TEST(OperationsProcessorTest, PostfixBasic);
 
   public:
-  // imp
+
+    static const std::regex VALID_OPERATORS;
+    static const std::regex IS_NUMBER;
+
+
     OperationsProcessor(const std::string& input, bool compute = true);
     double getResult() const;
     const std::vector<std::string>& getTokens() const;
