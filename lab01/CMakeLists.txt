@@ -16,6 +16,3 @@ target_link_libraries(lab01 PRIVATE lab01_lib)
 add_executable(lab01_tests ${TEST_SOURCES})
 target_include_directories(lab01_tests PUBLIC ${CMAKE_SOURCE_DIR}/tests/include)
 target_link_libraries(lab01_tests PRIVATE lab01_lib gtest gtest_main)
-
-enable_testing()
-add_test(NAME lab01_tests COMMAND lab01_tests)

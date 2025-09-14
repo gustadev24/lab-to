@@ -7,7 +7,7 @@ compile: $(BUILD_DIR)
 	make -C $(BUILD_DIR)
 
 test: compile
-	ctest --test-dir build --output-on-failure
+	./$(BUILD_DIR)/lab01_tests
 
 run:
 	./$(BUILD_DIR)/lab01
