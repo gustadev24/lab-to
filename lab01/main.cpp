@@ -5,6 +5,7 @@
 
 int main() {
   std::cout << "Welcome to Calculator!" << std::endl;
+  std::cout << "Write 'exit' to end the program" << std::endl;
   bool wantContinue = true;
   std::regex exitPattern("exit", std::regex::icase);
   Calculator calc;
