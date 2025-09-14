@@ -8,6 +8,9 @@ DivideOperation::DivideOperation(double a, double b) {
 }
 
 void DivideOperation::compute() {
+  if (this->rightOperand == 0) {
+    throw std::runtime_error("Division by zero");
+  }
   this->result = this->leftOperand / this->rightOperand;
 }
 
