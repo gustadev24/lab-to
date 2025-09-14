@@ -1,5 +1,8 @@
 #include "calculator-core.h"
 #include "calculator.h"
+#include "operations/divide.h"
+#include "operations/multiplicate.h"
+#include "operations/substract.h"
 #include "operations/sum.h"
 #include <stack>
 #include <stdexcept>
@@ -35,7 +38,24 @@ double CalculatorCore::solve(std::vector<std::string> postfixExp) {
 
 double CalculatorCore::inferOperation(const std::string& op, double left, double right) {
   if (op == "+") {
-    return this->add(left, right);
+    SumOperation sum(left, right);
+    this->result = sum.getResult();
+    return this->getResult();
+  }
+  if (op == "-") {
+    SubstractOperation sub(left, right);
+    this->result = sub.getResult();
+    return this->getResult();
+  }
+  if (op == "*") {
+    MultiplicateOperation mul(left, right);
+    this->result = mul.getResult();
+    return this->getResult();
+  }
+  if (op == "/") {
+    DivideOperation div(left, right);
+    this->result = div.getResult();
+    return this->getResult();
   }
   throw std::runtime_error("Unknown operation: " + op);
 }
