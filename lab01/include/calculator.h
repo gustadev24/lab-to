@@ -12,6 +12,8 @@ class Calculator {
     CalculatorCore solver;
     std::optional<double> result;
 
+    FRIEND_TEST(CalculatorTest, ComputeBasicExpressions);
+
   public:
     Calculator();
     double compute(const std::string& input);
