@@ -14,3 +14,16 @@ TEST(CalculatorTest, ComputeBasicExpressions) {
   // Test case 3: "1+2+3+4+5+6"
   EXPECT_DOUBLE_EQ(calculator.compute("1+2+3+4+5+6"), 21.0);
 }
+
+TEST(CalculatorTest, ComputeWithAllOperations) {
+  Calculator calculator;
+
+  // Test case 1: "12+34-5*6/2"
+  EXPECT_DOUBLE_EQ(calculator.compute("12+34-5*6/2"), 31.0);
+
+  // Test case 2: "100/4+3*2-1"
+  EXPECT_DOUBLE_EQ(calculator.compute("100/4+3*2-1"), 30.0);
+
+  // Test case 3: "50-10*2+8/4"
+  EXPECT_DOUBLE_EQ(calculator.compute("50-10*2+8/4"), 32.0);
+}
