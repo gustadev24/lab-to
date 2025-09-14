@@ -12,8 +12,6 @@ class Calculator {
     CalculatorCore solver;
     std::optional<double> result;
 
-    void solve();
-
   public:
     Calculator();
     double compute(const std::string& input);
