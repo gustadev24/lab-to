@@ -27,3 +27,16 @@ TEST(CalculatorTest, ComputeWithAllOperations) {
   // Test case 3: "50-10*2+8/4"
   EXPECT_DOUBLE_EQ(calculator.compute("50-10*2+8/4"), 32.0);
 }
+
+TEST(CalculatorTest, ComputeWithNegativeNumbers) {
+  Calculator calculator;
+
+  // Test case 1: "-5+10"
+  EXPECT_DOUBLE_EQ(calculator.compute("-5+10"), 5.0);
+
+  // Test case 2: "3+-2+7"
+  EXPECT_DOUBLE_EQ(calculator.compute("3+-2+7"), 8.0);
+
+  // Test case 3: "15+-10+5"
+  EXPECT_DOUBLE_EQ(calculator.compute("15+-10+5"), 10.0);
+}
