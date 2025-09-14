@@ -1,16 +1,9 @@
 #pragma once
-#include <optional>
+#include "operations/operation.h"
 
-class SumOperation {
-  private:
-    double leftOperand;
-    double rightOperand;
-    std::optional<double> result;
-
-    void compute();
-
+class SumOperation: public Operation {
+  protected:
+    void compute() override;
   public:
     SumOperation(double a, double b);
-
-    double getResult() const;
 };

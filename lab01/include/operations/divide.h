@@ -1,16 +1,9 @@
 #pragma once
-#include <optional>
+#include "operations/operation.h"
 
-class DivideOperation {
+class DivideOperation: public Operation {
   private:
-    double leftOperand;
-    double rightOperand;
-    std::optional<double> result;
-
-    void compute();
-
+    void compute() override;
   public:
     DivideOperation(double a, double b);
-
-    double getResult() const;
 };
