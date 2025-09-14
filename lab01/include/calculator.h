@@ -1,18 +1,21 @@
 #pragma once
+#include <gtest/gtest_prod.h>
 #include <optional>
 #include <string>
+#include "calculator-core.h"
+#include "calculator-parser.h"
 
 class Calculator {
   private:
+    const std::string input;
+    CalculatorParser parser;
+    CalculatorCore solver;
     std::optional<double> result;
 
-    void compute();
-
-    double add(std::initializer_list<double> nums);
+    void solve();
 
   public:
-    Calculator(std::string n1, std::string n2, std::string op);
-    Calculator(double n1, double n2, std::string op);
-
+    Calculator();
+    double compute(const std::string& input);
     double getResult() const;
 };

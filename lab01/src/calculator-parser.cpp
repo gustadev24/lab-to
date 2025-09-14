@@ -1,27 +1,28 @@
-#include "processor.h"
-#include "calculator.h"
+#include "calculator-parser.h"
 #include <regex>
-#include <stack>
-#include <string>
-#include <vector>
 
-const std::regex OperationsProcessor::VALID_OPERATORS("[\\+\\-\\*\\/]");
-const std::regex OperationsProcessor::IS_NUMBER("^[-\\+]?\\d+(\\.\\d+)?$");
+const std::regex CalculatorParser::VALID_OPERATORS("[\\+\\-\\*\\/]");
+const std::regex CalculatorParser::IS_NUMBER("^[-\\+]?\\d+(\\.\\d+)?$");
 
-OperationsProcessor::OperationsProcessor(const std::string& input, bool compute): input(input) {
-  if (compute)
-    this->compute();
+CalculatorParser::CalculatorParser() : rawInput(""), tokens(), postfix() {}
+
+std::vector<std::string> CalculatorParser::parse(const std::string& input) {
+  this->rawInput = input;
+  this->clear();
+  this->tokenize();
+  this->toPostfix();
+  return this->postfix;
 }
 
-void OperationsProcessor::clear() {
-  this->postfix.clear();
+void CalculatorParser::clear() {
   this->tokens.clear();
+  this->postfix.clear();
 }
 
-void OperationsProcessor::tokenize() {
+void CalculatorParser::tokenize() {
   std::string currentToken;
   std::string pendingSign;
-  for (char c : this->input) {
+  for (char c : this->rawInput) {
     if (c == ' ') continue;
 
     std::string currentChar(1, c);
@@ -66,66 +67,7 @@ void OperationsProcessor::tokenize() {
   }
 }
 
-void OperationsProcessor::parse() {
-  // 1. Clear rest objects from previous computations
-  this->clear();
-  // 2. Split tokens from the raw input
-  this->tokenize();
-  // 3. Create postfix expression
-  this->toPostfix();
-}
-
-void OperationsProcessor::compute() {
-  // 1. Parse expression
-  this->parse();
-  // 2. Solve the expression
-  this->solve();
-}
-
-void OperationsProcessor::solve() {
-  std::stack<std::string> stack;
-  for (std::string token : this->postfix) {
-    if (std::regex_match(token, IS_NUMBER)) {
-      stack.push(token);
-    } else {
-      if (stack.size() < 2) {
-        throw std::runtime_error("Invalid expression: insufficient values for operation " + token);
-      }
-      double right = std::stod(stack.top());
-      stack.pop();
-      double left = std::stod(stack.top());
-      stack.pop();
-
-      double result;
-      Calculator calc(left, right, token);
-      result = calc.getResult();
-      stack.push(std::to_string(result));
-    }
-  }
-
-  if (stack.size() != 1) {
-    throw std::runtime_error("Invalid expression: leftover values in stack");
-  }
-  this->result = std::stod(stack.top());
-  stack.pop();
-}
-
-double OperationsProcessor::getResult() const {
-  if (!this->result.has_value()) {
-    throw std::runtime_error("Result not computed");
-  }
-  return this->result.value();
-}
-
-const std::vector<std::string>& OperationsProcessor::getTokens() const {
-  return this->tokens;
-}
-
-const std::vector<std::string>& OperationsProcessor::getPostfix() const {
-  return this->postfix;
-}
-
-void OperationsProcessor::toPostfix() {
+void CalculatorParser::toPostfix() {
   std::stack<std::string> stack;
   for (auto& token : this->tokens) {
     if (std::regex_match(token, IS_NUMBER)) {
@@ -174,8 +116,16 @@ void OperationsProcessor::toPostfix() {
   }
 }
 
-int OperationsProcessor::precedence(const std::string& op) {
+int CalculatorParser::precedence(const std::string& op) {
   if (op == "+" || op == "-") return 1;
   if (op == "*" || op == "/") return 2;
   return 0;
+}
+
+std::vector<std::string> CalculatorParser::getTokens() const {
+  return this->tokens;
+}
+
+std::vector<std::string> CalculatorParser::getPostfix() const {
+  return this->postfix;
 }

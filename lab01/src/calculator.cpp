@@ -1,31 +1,14 @@
 #include "calculator.h"
-#include "operations/sum.h"
-#include <initializer_list>
-#include <stdexcept>
+#include <string>
 
-Calculator::Calculator(double n1, double n2, std::string op) {
-  if (op == "+") {
-    this->result = this->add({n1, n2});
-  } else {
-    throw std::runtime_error("Unknown operator: " + op);
-  }
-}
+Calculator::Calculator() : input(""), parser(), result(), solver() {}
 
-Calculator::Calculator(std::string n1, std::string n2, std::string op) {
-  try {
-    double num1 = std::stod(n1);
-    double num2 = std::stod(n2);
-    Calculator(num1, num2, op);
-  } catch (const std::invalid_argument& e) {
-    throw std::runtime_error("Invalid number format");
-  } catch (const std::out_of_range& e) {
-    throw std::runtime_error("Number out of range");
-  }
-}
-
-double Calculator::add(std::initializer_list<double> nums) {
-  SumOperation sum(nums);
-  return sum.getResult();
+double Calculator::compute(const std::string& input) {
+  // 1. Parse expression
+  std::vector<std::string> postfix = this->parser.parse(input);
+  // 2. Solve the expression
+  this->result = this->solver.solve(postfix);
+  return getResult();
 }
 
 double Calculator::getResult() const {
