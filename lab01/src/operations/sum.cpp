@@ -1,11 +1,14 @@
 #include "operations/sum.h"
 #include <stdexcept>
 
+SumOperation::SumOperation(double a, double b) {
+  this->leftOperand = a;
+  this->rightOperand = b;
+  this->compute();
+}
+
 void SumOperation::compute() {
-  double sum = 0;
-  for (double v : values)
-    sum += v;
-  this->result = sum;
+  this->result = this->leftOperand + this->rightOperand;
 }
 
 double SumOperation::getResult() const {

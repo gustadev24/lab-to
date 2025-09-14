@@ -1,7 +1,6 @@
 #include "calculator-core.h"
 #include "calculator.h"
 #include "operations/sum.h"
-#include <initializer_list>
 #include <stack>
 #include <stdexcept>
 
@@ -36,13 +35,13 @@ double CalculatorCore::solve(std::vector<std::string> postfixExp) {
 
 double CalculatorCore::inferOperation(const std::string& op, double left, double right) {
   if (op == "+") {
-    return this->add({left, right});
+    return this->add(left, right);
   }
   throw std::runtime_error("Unknown operation: " + op);
 }
 
-double CalculatorCore::add(std::initializer_list<double> nums) {
-  SumOperation sum(nums);
+double CalculatorCore::add(double a, double b) {
+  SumOperation sum(a, b);
   return sum.getResult();
 }
 
