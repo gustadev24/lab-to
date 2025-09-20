@@ -1,9 +1,10 @@
 #include "calculator.h"
 #include <gtest/gtest.h>
 #include <vector>
+#include <memory>
 
 TEST(CalculatorParserTest, TokenizeBasic) {
-    CalculatorParser* parser = new CalculatorParser();
+    std::unique_ptr<CalculatorParser> parser = std::make_unique<CalculatorParser>();
     parser->parse("3 + -4 * 2");
     std::vector<std::string> tokens = parser->getTokens();
     ASSERT_EQ(tokens.size(), 5);
@@ -12,11 +13,10 @@ TEST(CalculatorParserTest, TokenizeBasic) {
     EXPECT_EQ(tokens[2], "-4");
     EXPECT_EQ(tokens[3], "*");
     EXPECT_EQ(tokens[4], "2");
-    delete parser;
 }
 
 TEST(CalculatorParserTest, PostfixBasic) {
-  CalculatorParser* parser = new CalculatorParser();
+  std::unique_ptr<CalculatorParser> parser = std::make_unique<CalculatorParser>();
   parser->parse("3 + 4 * 2");
   std::vector<std::string> postfix = parser->getPostfix();
 
@@ -26,5 +26,4 @@ TEST(CalculatorParserTest, PostfixBasic) {
   EXPECT_EQ(postfix[2], "2");
   EXPECT_EQ(postfix[3], "*");
   EXPECT_EQ(postfix[4], "+");
-  delete parser;
 }

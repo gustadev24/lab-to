@@ -7,6 +7,7 @@
 #include "operations/sum.h"
 #include <stack>
 #include <stdexcept>
+#include <memory>
 
 CalculatorCore::CalculatorCore() : result() {}
 
@@ -38,23 +39,21 @@ double CalculatorCore::solve(std::vector<std::string> postfixExp) {
 }
 
 double CalculatorCore::inferOperation(const std::string& op, double left, double right) {
-  Operation* exec = nullptr;
+  std::unique_ptr<Operation> exec = nullptr;
   if (op == "+") {
-    exec = new SumOperation(left, right);
+    exec = std::make_unique<SumOperation>(left, right);
   } else if (op == "-") {
-    exec = new SubstractOperation(left, right);
+    exec = std::make_unique<SubstractOperation>(left, right);
   } else if (op == "*") {
-    exec = new MultiplicateOperation(left, right);
+    exec = std::make_unique<MultiplicateOperation>(left, right);
   } else if (op == "/") {
-    exec = new DivideOperation(left, right);
+    exec = std::make_unique<DivideOperation>(left, right);
   }
   if (exec == nullptr)
     throw std::runtime_error("Unknown operation: " + op);
 
   this->result = exec->getResult();
-  double resultValue = this->getResult();
-  delete exec;
-  return resultValue;
+  return this->getResult();
 
 }
 

@@ -2,17 +2,18 @@
 #include "lib/bet.h"
 #include <vector>
 #include <string>
+#include <memory>
 
 class BinaryExpressionTreeTest : public ::testing::Test {
 protected:
-    BinaryExpressionTree* tree;
+    std::unique_ptr<BinaryExpressionTree> tree;
 
     void SetUp() override {
-        tree = new BinaryExpressionTree();
+        tree = std::make_unique<BinaryExpressionTree>();
     }
 
     void TearDown() override {
-        delete tree;
+        tree.reset();
     }
 };
 
@@ -166,29 +167,25 @@ TEST_F(BinaryExpressionTreeTest, RebuildTree) {
 }
 
 TEST_F(BinaryExpressionTreeTest, ConstructorWithInorderExpression) {
-    BinaryExpressionTree* constructedTree = new BinaryExpressionTree("8 / 2");
+    std::unique_ptr<BinaryExpressionTree> constructedTree = std::make_unique<BinaryExpressionTree>("8 / 2");
 
     EXPECT_FALSE(constructedTree->isEmpty());
     EXPECT_DOUBLE_EQ(constructedTree->evaluate(), 4.0);
     EXPECT_EQ(constructedTree->getInorderExpression(), "(8 / 2)");
-
-    delete constructedTree;
 }
 
 TEST_F(BinaryExpressionTreeTest, ConstructorWithTokenVector) {
     std::vector<std::string> tokens = {"6", "*", "7"};
-    BinaryExpressionTree* constructedTree = new BinaryExpressionTree(tokens);
+    std::unique_ptr<BinaryExpressionTree> constructedTree = std::make_unique<BinaryExpressionTree>(tokens);
 
     EXPECT_FALSE(constructedTree->isEmpty());
     EXPECT_DOUBLE_EQ(constructedTree->evaluate(), 42.0);
     EXPECT_EQ(constructedTree->getInorderExpression(), "(6 * 7)");
-
-    delete constructedTree;
 }
 
 TEST_F(BinaryExpressionTreeTest, CopyConstructor) {
     tree->buildTree("5 + 3");
-    BinaryExpressionTree* copiedTree = new BinaryExpressionTree(*tree);
+    std::unique_ptr<BinaryExpressionTree> copiedTree = std::make_unique<BinaryExpressionTree>(*tree);
 
     EXPECT_DOUBLE_EQ(copiedTree->evaluate(), 8.0);
     EXPECT_EQ(copiedTree->getNodeCount(), 3);
@@ -200,13 +197,11 @@ TEST_F(BinaryExpressionTreeTest, CopyConstructor) {
 
     // Copied tree should remain unchanged
     EXPECT_DOUBLE_EQ(copiedTree->evaluate(), 8.0);
-
-    delete copiedTree;
 }
 
 TEST_F(BinaryExpressionTreeTest, AssignmentOperator) {
     tree->buildTree("7 - 2");
-    BinaryExpressionTree* otherTree = new BinaryExpressionTree("4 + 1");
+    std::unique_ptr<BinaryExpressionTree> otherTree = std::make_unique<BinaryExpressionTree>("4 + 1");
 
     EXPECT_DOUBLE_EQ(tree->evaluate(), 5.0);
     EXPECT_DOUBLE_EQ(otherTree->evaluate(), 5.0);
@@ -216,8 +211,6 @@ TEST_F(BinaryExpressionTreeTest, AssignmentOperator) {
 
     EXPECT_DOUBLE_EQ(otherTree->evaluate(), 5.0);
     EXPECT_EQ(otherTree->getInorderExpression(), "(7 - 2)");
-
-    delete otherTree;
 }
 
 TEST_F(BinaryExpressionTreeTest, EmptyStringExpression) {
@@ -229,9 +222,9 @@ TEST_F(BinaryExpressionTreeTest, EmptyStringExpression) {
 
 TEST_F(BinaryExpressionTreeTest, NodeTypeChecking) {
     // Test BETNode helper methods
-    BETNode* operatorNode = new BETNode("+");
-    BETNode* operandNode = new BETNode("42");
-    BETNode* negativeNode = new BETNode("-3.5");
+    std::unique_ptr<BETNode> operatorNode = std::make_unique<BETNode>("+");
+    std::unique_ptr<BETNode> operandNode = std::make_unique<BETNode>("42");
+    std::unique_ptr<BETNode> negativeNode = std::make_unique<BETNode>("-3.5");
 
     EXPECT_TRUE(operatorNode->isOperator());
     EXPECT_FALSE(operatorNode->isOperand());
@@ -241,10 +234,6 @@ TEST_F(BinaryExpressionTreeTest, NodeTypeChecking) {
 
     EXPECT_FALSE(negativeNode->isOperator());
     EXPECT_TRUE(negativeNode->isOperand());
-
-    delete operatorNode;
-    delete operandNode;
-    delete negativeNode;
 }
 
 TEST_F(BinaryExpressionTreeTest, ComplexNestedExpression) {
@@ -341,7 +330,6 @@ TEST_F(BinaryExpressionTreeTest, StepByStepDivision) {
     EXPECT_TRUE(stepString.find("Final result: 5") != std::string::npos);
 }
 
-// Tests specifically for traversal methods
 TEST_F(BinaryExpressionTreeTest, InorderTraversalTests) {
     // Simple expression
     tree->buildTree("5 + 3");

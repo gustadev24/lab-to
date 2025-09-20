@@ -1,10 +1,11 @@
+#include <memory>
 #include <string>
 
 class BETNode {
   private:
     std::string value;
-    BETNode* left;
-    BETNode* right;
+    std::unique_ptr<BETNode> left;
+    std::unique_ptr<BETNode> right;
 
   public:
     BETNode(const std::string& val) : value(val), left(nullptr), right(nullptr) {}

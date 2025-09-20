@@ -1,26 +1,26 @@
 #pragma once
+#include "bet-node.h"
+#include <memory>
 #include <string>
 #include <vector>
-#include "bet-node.h"
 
 class BinaryExpressionTree {
 private:
-    BETNode* root;
+    std::unique_ptr<BETNode> root;
 
     // Helper methods for tree operations
-    BETNode* buildFromInorder(const std::vector<std::string>& tokens, int& index);
-    BETNode* parseExpression(const std::vector<std::string>& tokens, int& index);
-    BETNode* parseTerm(const std::vector<std::string>& tokens, int& index);
-    BETNode* parseFactor(const std::vector<std::string>& tokens, int& index);
+    std::unique_ptr<BETNode> buildFromInorder(const std::vector<std::string>& tokens, int& index);
+    std::unique_ptr<BETNode> parseExpression(const std::vector<std::string>& tokens, int& index);
+    std::unique_ptr<BETNode> parseTerm(const std::vector<std::string>& tokens, int& index);
+    std::unique_ptr<BETNode> parseFactor(const std::vector<std::string>& tokens, int& index);
 
     double evaluateNode(const BETNode* node) const;
     std::string inorderTraversal(const BETNode* node) const;
     std::string preorderTraversal(const BETNode* node) const;
     std::string postorderTraversal(const BETNode* node) const;
 
-    // Helper methods for memory management
-    void deleteTree(BETNode* node);
-    BETNode* copyTree(const BETNode* node);
+    // Helper methods for copying
+    std::unique_ptr<BETNode> copyTree(const BETNode* node);
 
     // Helper methods for structure analysis
     int getHeightHelper(const BETNode* node) const;
@@ -40,7 +40,6 @@ public:
     BinaryExpressionTree(const std::vector<std::string>& tokens);
     BinaryExpressionTree(const BinaryExpressionTree& other);
     BinaryExpressionTree& operator=(const BinaryExpressionTree& other);
-    ~BinaryExpressionTree();
 
     // Tree construction
     void buildTree(const std::string& inorderExpression);

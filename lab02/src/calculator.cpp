@@ -1,16 +1,11 @@
 #include "calculator.h"
 #include <string>
+#include <memory>
 
 Calculator::Calculator() : input(""), parser(nullptr), result(), solver(nullptr), history(nullptr) {
-    parser = new CalculatorParser();
-    solver = new CalculatorCore();
-    history = new CalculatorHistory();
-}
-
-Calculator::~Calculator() {
-    delete parser;
-    delete solver;
-    delete history;
+    parser = std::make_unique<CalculatorParser>();
+    solver = std::make_unique<CalculatorCore>();
+    history = std::make_unique<CalculatorHistory>();
 }
 
 double Calculator::compute(const std::string& input) {
@@ -30,6 +25,6 @@ double Calculator::getResult() const {
   return this->result.value();
 }
 
-CalculatorHistory* Calculator::getHistory() const {
-  return this->history;
+CalculatorHistory Calculator::getHistory() const {
+  return *this->history;
 }

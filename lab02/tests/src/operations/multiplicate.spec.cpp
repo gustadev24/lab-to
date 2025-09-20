@@ -1,26 +1,23 @@
 #include <gtest/gtest.h>
 #include "operations/multiplicate.h"
+#include <memory>
 
 TEST(MultiplicateOperationTest, BasicMultiplication) {
-    MultiplicateOperation* mul = new MultiplicateOperation(3, 5);
+    std::unique_ptr<MultiplicateOperation> mul = std::make_unique<MultiplicateOperation>(3, 5);
     EXPECT_DOUBLE_EQ(mul->getResult(), 15);
-    delete mul;
 }
 
 TEST(MultiplicateOperationTest, NegativeMultiplication) {
-    MultiplicateOperation* mul = new MultiplicateOperation(-3, -5);
+    std::unique_ptr<MultiplicateOperation> mul = std::make_unique<MultiplicateOperation>(-3, -5);
     EXPECT_DOUBLE_EQ(mul->getResult(), 15);
-    delete mul;
 }
 
 TEST(MultiplicateOperationTest, MixedMultiplication) {
-    MultiplicateOperation* mul = new MultiplicateOperation(-3, 5);
+    std::unique_ptr<MultiplicateOperation> mul = std::make_unique<MultiplicateOperation>(-3, 5);
     EXPECT_DOUBLE_EQ(mul->getResult(), -15);
-    delete mul;
 }
 
 TEST(MultiplicateOperationTest, ZeroMultiplication) {
-    MultiplicateOperation* mul = new MultiplicateOperation(0, 5);
+    std::unique_ptr<MultiplicateOperation> mul = std::make_unique<MultiplicateOperation>(0, 5);
     EXPECT_DOUBLE_EQ(mul->getResult(), 0);
-    delete mul;
 }

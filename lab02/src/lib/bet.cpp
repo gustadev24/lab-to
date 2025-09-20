@@ -1,7 +1,6 @@
 #include "lib/bet.h"
 #include <stdexcept>
 #include <regex>
-
 #include <algorithm>
 
 // BinaryExpressionTree implementation
@@ -16,37 +15,25 @@ BinaryExpressionTree::BinaryExpressionTree(const std::vector<std::string>& token
 }
 
 BinaryExpressionTree::BinaryExpressionTree(const BinaryExpressionTree& other) : root(nullptr) {
-    root = copyTree(other.root);
+    root = copyTree(other.root.get());
 }
 
 BinaryExpressionTree& BinaryExpressionTree::operator=(const BinaryExpressionTree& other) {
     if (this != &other) {
-        deleteTree(root);
-        root = copyTree(other.root);
+        root = copyTree(other.root.get());
     }
     return *this;
 }
 
-BinaryExpressionTree::~BinaryExpressionTree() {
-    deleteTree(root);
-}
-
-void BinaryExpressionTree::deleteTree(BETNode* node) {
-    if (node) {
-        deleteTree(node->left);
-        deleteTree(node->right);
-        delete node;
-    }
-}
-
-BETNode* BinaryExpressionTree::copyTree(const BETNode* node) {
+std::unique_ptr<BETNode> BinaryExpressionTree::copyTree(const BETNode* node) {
     if (!node) {
         return nullptr;
     }
 
-    BETNode* newNode = new BETNode(node->value);
-    newNode->left = copyTree(node->left);
-    newNode->right = copyTree(node->right);
+
+    auto newNode = std::make_unique<BETNode>(node->value);
+    newNode->left = copyTree(node->left.get());
+    newNode->right = copyTree(node->right.get());
     return newNode;
 }
 
@@ -56,8 +43,7 @@ void BinaryExpressionTree::buildTree(const std::string& inorderExpression) {
 }
 
 void BinaryExpressionTree::buildTree(const std::vector<std::string>& tokens) {
-    deleteTree(root);
-    root = nullptr;
+    root.reset();
 
     if (tokens.empty()) {
         return;
@@ -67,8 +53,7 @@ void BinaryExpressionTree::buildTree(const std::vector<std::string>& tokens) {
     root = parseExpression(tokens, index);
 
     if (index != tokens.size()) {
-        deleteTree(root);
-        root = nullptr;
+        root.reset();
         throw std::runtime_error("Invalid expression: unexpected tokens after parsing");
     }
 }
@@ -129,51 +114,50 @@ std::vector<std::string> BinaryExpressionTree::tokenizeInorder(const std::string
 }
 
 // Recursive descent parser implementation
-BETNode* BinaryExpressionTree::parseExpression(const std::vector<std::string>& tokens, int& index) {
-    BETNode* left = parseTerm(tokens, index);
+std::unique_ptr<BETNode> BinaryExpressionTree::parseExpression(const std::vector<std::string>& tokens, int& index) {
+    auto left = parseTerm(tokens, index);
 
     while (index < tokens.size() && (tokens[index] == "+" || tokens[index] == "-")) {
         std::string op = tokens[index];
         index++;
-        BETNode* right = parseTerm(tokens, index);
+        auto right = parseTerm(tokens, index);
 
-        BETNode* opNode = new BETNode(op);
-        opNode->left = left;
-        opNode->right = right;
-        left = opNode;
+        auto opNode = std::make_unique<BETNode>(op);
+        opNode->left = std::move(left);
+        opNode->right = std::move(right);
+        left = std::move(opNode);
     }
 
     return left;
 }
 
-BETNode* BinaryExpressionTree::parseTerm(const std::vector<std::string>& tokens, int& index) {
-    BETNode* left = parseFactor(tokens, index);
+std::unique_ptr<BETNode> BinaryExpressionTree::parseTerm(const std::vector<std::string>& tokens, int& index) {
+    auto left = parseFactor(tokens, index);
 
     while (index < tokens.size() && (tokens[index] == "*" || tokens[index] == "/")) {
         std::string op = tokens[index];
         index++;
-        BETNode* right = parseFactor(tokens, index);
+        auto right = parseFactor(tokens, index);
 
-        BETNode* opNode = new BETNode(op);
-        opNode->left = left;
-        opNode->right = right;
-        left = opNode;
+        auto opNode = std::make_unique<BETNode>(op);
+        opNode->left = std::move(left);
+        opNode->right = std::move(right);
+        left = std::move(opNode);
     }
 
     return left;
 }
 
-BETNode* BinaryExpressionTree::parseFactor(const std::vector<std::string>& tokens, int& index) {
+std::unique_ptr<BETNode> BinaryExpressionTree::parseFactor(const std::vector<std::string>& tokens, int& index) {
     if (index >= tokens.size()) {
         throw std::runtime_error("Unexpected end of expression");
     }
 
     if (tokens[index] == "(") {
         index++; // consume '('
-        BETNode* node = parseExpression(tokens, index);
+        auto node = parseExpression(tokens, index);
 
         if (index >= tokens.size() || tokens[index] != ")") {
-            deleteTree(node);
             throw std::runtime_error("Missing closing parenthesis");
         }
         index++; // consume ')'
@@ -181,9 +165,8 @@ BETNode* BinaryExpressionTree::parseFactor(const std::vector<std::string>& token
     }
 
     // Must be a number
-    BETNode* node = new BETNode(tokens[index]);
+    auto node = std::make_unique<BETNode>(tokens[index]);
     if (!node->isOperand()) {
-        delete node;
         throw std::runtime_error("Expected number or opening parenthesis, got: " + tokens[index]);
     }
 
@@ -195,7 +178,7 @@ double BinaryExpressionTree::evaluate() const {
     if (!root) {
         throw std::runtime_error("Cannot evaluate empty tree");
     }
-    return evaluateNode(root);
+    return evaluateNode(root.get());
 }
 
 double BinaryExpressionTree::evaluateNode(const BETNode* node) const {
@@ -208,8 +191,8 @@ double BinaryExpressionTree::evaluateNode(const BETNode* node) const {
     }
 
     if (node->isOperator()) {
-        double leftVal = evaluateNode(node->left);
-        double rightVal = evaluateNode(node->right);
+        double leftVal = evaluateNode(node->left.get());
+        double rightVal = evaluateNode(node->right.get());
 
         if (node->value == "+") {
             return leftVal + rightVal;
@@ -230,138 +213,6 @@ double BinaryExpressionTree::evaluateNode(const BETNode* node) const {
     throw std::runtime_error("Invalid node type");
 }
 
-std::string BinaryExpressionTree::getInorderExpression() const {
-    if (!root) {
-        return "";
-    }
-    return inorderTraversal(root);
-}
-
-std::string BinaryExpressionTree::inorderTraversal(const BETNode* node) const {
-    if (!node) {
-        return "";
-    }
-
-    std::string result;
-
-    if (node->isOperator()) {
-        result += "(";
-    }
-
-    // Left subtree
-    result += inorderTraversal(node->left);
-
-    // Current node
-    if (!result.empty() && node->left) {
-        result += " ";
-    }
-    result += node->value;
-
-    // Right subtree
-    if (node->right) {
-        result += " ";
-    }
-    result += inorderTraversal(node->right);
-
-    if (node->isOperator()) {
-        result += ")";
-    }
-
-    return result;
-}
-
-std::string BinaryExpressionTree::getPreorderExpression() const {
-    if (!root) {
-        return "";
-    }
-    return preorderTraversal(root);
-}
-
-std::string BinaryExpressionTree::preorderTraversal(const BETNode* node) const {
-    if (!node) {
-        return "";
-    }
-
-    std::string result = node->value;
-
-    std::string leftResult = preorderTraversal(node->left);
-    if (!leftResult.empty()) {
-        result += " " + leftResult;
-    }
-
-    std::string rightResult = preorderTraversal(node->right);
-    if (!rightResult.empty()) {
-        result += " " + rightResult;
-    }
-
-    return result;
-}
-
-std::string BinaryExpressionTree::getPostorderExpression() const {
-    if (!root) {
-        return "";
-    }
-    return postorderTraversal(root);
-}
-
-std::string BinaryExpressionTree::postorderTraversal(const BETNode* node) const {
-    if (!node) {
-        return "";
-    }
-
-    std::string result;
-
-    std::string leftResult = postorderTraversal(node->left);
-    if (!leftResult.empty()) {
-        result += leftResult + " ";
-    }
-
-    std::string rightResult = postorderTraversal(node->right);
-    if (!rightResult.empty()) {
-        result += rightResult + " ";
-    }
-
-    result += node->value;
-
-    return result;
-}
-
-bool BinaryExpressionTree::isEmpty() const {
-    return root == nullptr;
-}
-
-void BinaryExpressionTree::clear() {
-    deleteTree(root);
-    root = nullptr;
-}
-
-int BinaryExpressionTree::getHeight() const {
-    return getHeightHelper(root);
-}
-
-int BinaryExpressionTree::getHeightHelper(const BETNode* node) const {
-    if (!node) {
-        return 0;
-    }
-
-    int leftHeight = getHeightHelper(node->left);
-    int rightHeight = getHeightHelper(node->right);
-
-    return 1 + std::max(leftHeight, rightHeight);
-}
-
-int BinaryExpressionTree::getNodeCount() const {
-    return getNodeCountHelper(root);
-}
-
-int BinaryExpressionTree::getNodeCountHelper(const BETNode* node) const {
-    if (!node) {
-        return 0;
-    }
-
-    return 1 + getNodeCountHelper(node->left) + getNodeCountHelper(node->right);
-}
-
 std::vector<std::string> BinaryExpressionTree::getStepByStepSolution() const {
     std::vector<std::string> steps;
 
@@ -376,7 +227,7 @@ std::vector<std::string> BinaryExpressionTree::getStepByStepSolution() const {
     steps.push_back("");
     steps.push_back("Step-by-step evaluation:");
 
-    generateSteps(root, steps);
+    generateSteps(root.get(), steps);
 
     steps.push_back("");
     steps.push_back("Final result: " + formatNumber(evaluate()));
@@ -412,20 +263,20 @@ void BinaryExpressionTree::generateSteps(const BETNode* node, std::vector<std::s
         // First evaluate left and right subtrees
         if (node->left) {
             steps.push_back("  Evaluating left operand for '" + node->value + "':");
-            generateSteps(node->left, steps);
+            generateSteps(node->left.get(), steps);
         }
 
         if (node->right) {
             steps.push_back("  Evaluating right operand for '" + node->value + "':");
-            generateSteps(node->right, steps);
+            generateSteps(node->right.get(), steps);
         }
 
         // Now perform the operation
-        double leftVal = evaluateNode(node->left);
-        double rightVal = evaluateNode(node->right);
+        double leftVal = evaluateNode(node->left.get());
+        double rightVal = evaluateNode(node->right.get());
 
-        std::string leftStr = nodeToString(node->left);
-        std::string rightStr = nodeToString(node->right);
+        std::string leftStr = nodeToString(node->left.get());
+        std::string rightStr = nodeToString(node->right.get());
 
         std::string operation = leftStr + " " + node->value + " " + rightStr;
 
@@ -460,8 +311,8 @@ std::string BinaryExpressionTree::nodeToString(const BETNode* node) const {
     }
 
     if (node->isOperator()) {
-        std::string leftStr = nodeToString(node->left);
-        std::string rightStr = nodeToString(node->right);
+        std::string leftStr = nodeToString(node->left.get());
+        std::string rightStr = nodeToString(node->right.get());
         return "(" + leftStr + " " + node->value + " " + rightStr + ")";
     }
 
@@ -487,4 +338,135 @@ std::string BinaryExpressionTree::formatNumber(double number) const {
     }
 
     return str;
+}
+
+std::string BinaryExpressionTree::getInorderExpression() const {
+    if (!root) {
+        return "";
+    }
+    return inorderTraversal(root.get());
+}
+
+std::string BinaryExpressionTree::inorderTraversal(const BETNode* node) const {
+    if (!node) {
+        return "";
+    }
+
+    std::string result;
+
+    if (node->isOperator()) {
+        result += "(";
+    }
+
+    // Left subtree
+    result += inorderTraversal(node->left.get());
+
+    // Current node
+    if (!result.empty() && node->left) {
+        result += " ";
+    }
+    result += node->value;
+
+    // Right subtree
+    if (node->right) {
+        result += " ";
+    }
+    result += inorderTraversal(node->right.get());
+
+    if (node->isOperator()) {
+        result += ")";
+    }
+
+    return result;
+}
+
+std::string BinaryExpressionTree::getPreorderExpression() const {
+    if (!root) {
+        return "";
+    }
+    return preorderTraversal(root.get());
+}
+
+std::string BinaryExpressionTree::preorderTraversal(const BETNode* node) const {
+    if (!node) {
+        return "";
+    }
+
+    std::string result = node->value;
+
+    std::string leftResult = preorderTraversal(node->left.get());
+    if (!leftResult.empty()) {
+        result += " " + leftResult;
+    }
+
+    std::string rightResult = preorderTraversal(node->right.get());
+    if (!rightResult.empty()) {
+        result += " " + rightResult;
+    }
+
+    return result;
+}
+
+std::string BinaryExpressionTree::getPostorderExpression() const {
+    if (!root) {
+        return "";
+    }
+    return postorderTraversal(root.get());
+}
+
+std::string BinaryExpressionTree::postorderTraversal(const BETNode* node) const {
+    if (!node) {
+        return "";
+    }
+
+    std::string result;
+
+    std::string leftResult = postorderTraversal(node->left.get());
+    if (!leftResult.empty()) {
+        result += leftResult + " ";
+    }
+
+    std::string rightResult = postorderTraversal(node->right.get());
+    if (!rightResult.empty()) {
+        result += rightResult + " ";
+    }
+
+    result += node->value;
+
+    return result;
+}
+
+bool BinaryExpressionTree::isEmpty() const {
+    return root == nullptr;
+}
+
+void BinaryExpressionTree::clear() {
+    root.reset();
+}
+
+int BinaryExpressionTree::getHeight() const {
+    return getHeightHelper(root.get());
+}
+
+int BinaryExpressionTree::getHeightHelper(const BETNode* node) const {
+    if (!node) {
+        return 0;
+    }
+
+    int leftHeight = getHeightHelper(node->left.get());
+    int rightHeight = getHeightHelper(node->right.get());
+
+    return 1 + std::max(leftHeight, rightHeight);
+}
+
+int BinaryExpressionTree::getNodeCount() const {
+    return getNodeCountHelper(root.get());
+}
+
+int BinaryExpressionTree::getNodeCountHelper(const BETNode* node) const {
+    if (!node) {
+        return 0;
+    }
+
+    return 1 + getNodeCountHelper(node->left.get()) + getNodeCountHelper(node->right.get());
 }

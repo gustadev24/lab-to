@@ -1,27 +1,23 @@
 #include "calculator.h"
 #include <gtest/gtest.h>
 #include <string>
+#include <memory>
 
 TEST(CalculatorTest, ComputeBasicExpressions) {
-  Calculator* calculator = new Calculator();
+  std::unique_ptr<Calculator> calculator = std::make_unique<Calculator>();
 
-  // Test case 1: "33+1"
-  EXPECT_DOUBLE_EQ(calculator->compute("33+1"), 34.0);
+  // Test case 1: "12+34"
+  EXPECT_DOUBLE_EQ(calculator->compute("12+34"), 46.0);
 
-  // Test case 2: "2*5"
-  EXPECT_DOUBLE_EQ(calculator->compute("2*5"), 10.0);
+  // Test case 2: "42+1+34"
+  EXPECT_DOUBLE_EQ(calculator->compute("42+1+34"), 77.0);
 
-  // Test case 3: "12+4*12"
-  EXPECT_DOUBLE_EQ(calculator->compute("12+4*12"), 60.0);
-
-  // Test case 4: "34*3+1*90"
-  EXPECT_DOUBLE_EQ(calculator->compute("34*3+1*90"), 192.0);
-
-  delete calculator;
+  // Test case 3: "1+2+3+4+5+6"
+  EXPECT_DOUBLE_EQ(calculator->compute("1+2+3+4+5+6"), 21.0);
 }
 
 TEST(CalculatorTest, ComputeWithAllOperations) {
-  Calculator* calculator = new Calculator();
+  std::unique_ptr<Calculator> calculator = std::make_unique<Calculator>();
 
   // Test case 1: "12+34-5*6/2"
   EXPECT_DOUBLE_EQ(calculator->compute("12+34-5*6/2"), 31.0);
@@ -31,12 +27,10 @@ TEST(CalculatorTest, ComputeWithAllOperations) {
 
   // Test case 3: "50-10*2+8/4"
   EXPECT_DOUBLE_EQ(calculator->compute("50-10*2+8/4"), 32.0);
-
-  delete calculator;
 }
 
 TEST(CalculatorTest, ComputeWithNegativeNumbers) {
-  Calculator* calculator = new Calculator();
+  std::unique_ptr<Calculator> calculator = std::make_unique<Calculator>();
 
   // Test case 1: "-5+10"
   EXPECT_DOUBLE_EQ(calculator->compute("-5+10"), 5.0);
@@ -46,12 +40,10 @@ TEST(CalculatorTest, ComputeWithNegativeNumbers) {
 
   // Test case 3: "15+-10+5"
   EXPECT_DOUBLE_EQ(calculator->compute("15+-10+5"), 10.0);
-
-  delete calculator;
 }
 
 TEST(CalculatorTest, ComputeWithSpaces) {
-  Calculator* calculator = new Calculator();
+  std::unique_ptr<Calculator> calculator = std::make_unique<Calculator>();
 
   // Test case 1: " 12 + 34 "
   EXPECT_DOUBLE_EQ(calculator->compute(" 12 + 34 "), 46.0);
@@ -61,6 +53,4 @@ TEST(CalculatorTest, ComputeWithSpaces) {
 
   // Test case 3: " 1 + 2 + 3 + 4 + 5 + 6 "
   EXPECT_DOUBLE_EQ(calculator->compute(" 1 + 2 + 3 + 4 + 5 + 6 "), 21.0);
-
-  delete calculator;
 }

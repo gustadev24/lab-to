@@ -2,12 +2,13 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <memory>
 
 int main() {
   std::cout << "Welcome to Calculator!" << std::endl;
   std::cout << "Choose an option (1-4):" << std::endl;
   bool wantContinue = true;
-  Calculator* calc = new Calculator();
+  std::unique_ptr<Calculator> calc = std::make_unique<Calculator>();
   do {
     std::cout << "1. Ingresar operación." << std::endl;
     std::cout << "2. Mostrar historial." << std::endl;
@@ -49,7 +50,7 @@ int main() {
       }
       continue;
     } else if (choice == "2") {
-      std::cout << "History:\n" << calc->getHistory()->getHistory() << std::endl;
+      std::cout << "History:\n" << calc->getHistory().getHistory() << std::endl;
       continue;
     } else if (choice == "1") {
       std::cout << "Enter an operation:" << std::endl;
@@ -66,7 +67,6 @@ int main() {
       continue;
     }
   } while (true);
-  std::cout << "History:\n" << calc->getHistory()->getHistory() << std::endl;
-  delete calc;
+  std::cout << "History:\n" << calc->getHistory().getHistory() << std::endl;
   std::cout << "Exiting Calculator. Goodbye!" << std::endl;
 }
