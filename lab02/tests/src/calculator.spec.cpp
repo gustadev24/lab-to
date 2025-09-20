@@ -5,14 +5,17 @@
 TEST(CalculatorTest, ComputeBasicExpressions) {
   Calculator* calculator = new Calculator();
 
-  // Test case 1: "12+34"
-  EXPECT_DOUBLE_EQ(calculator->compute("12+34"), 46.0);
+  // Test case 1: "33+1"
+  EXPECT_DOUBLE_EQ(calculator->compute("33+1"), 34.0);
 
-  // Test case 2: "42+1+34"
-  EXPECT_DOUBLE_EQ(calculator->compute("42+1+34"), 77.0);
+  // Test case 2: "2*5"
+  EXPECT_DOUBLE_EQ(calculator->compute("2*5"), 10.0);
 
-  // Test case 3: "1+2+3+4+5+6"
-  EXPECT_DOUBLE_EQ(calculator->compute("1+2+3+4+5+6"), 21.0);
+  // Test case 3: "12+4*12"
+  EXPECT_DOUBLE_EQ(calculator->compute("12+4*12"), 60.0);
+
+  // Test case 4: "34*3+1*90"
+  EXPECT_DOUBLE_EQ(calculator->compute("34*3+1*90"), 192.0);
 
   delete calculator;
 }
