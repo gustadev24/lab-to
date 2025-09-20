@@ -283,6 +283,64 @@ TEST_F(BinaryExpressionTreeTest, MultipleParentheses) {
     EXPECT_EQ(tree->getInorderExpression(), "((3 + 4) * 2)");
 }
 
+// Tests for step-by-step solution functionality
+TEST_F(BinaryExpressionTreeTest, StepByStepSimpleAddition) {
+    tree->buildTree("3 + 4");
+
+    std::vector<std::string> steps = tree->getStepByStepSolution();
+
+    EXPECT_GT(steps.size(), 0);
+    EXPECT_EQ(steps[0], "Original expression: (3 + 4)");
+    EXPECT_EQ(steps[1], "Postorder evaluation sequence: 3 4 +");
+
+    // Check that steps contain the calculation
+    std::string stepString = tree->getStepByStepString();
+    EXPECT_TRUE(stepString.find("3 + 4 = 7") != std::string::npos);
+}
+
+TEST_F(BinaryExpressionTreeTest, StepByStepComplexExpression) {
+    tree->buildTree("3 + 4 * 2");
+
+    std::vector<std::string> steps = tree->getStepByStepSolution();
+    std::string stepString = tree->getStepByStepString();
+
+    // Should show multiplication happens first
+    EXPECT_TRUE(stepString.find("Original expression: (3 + (4 * 2))") != std::string::npos);
+    EXPECT_TRUE(stepString.find("4 × 2 = 8") != std::string::npos);
+    EXPECT_TRUE(stepString.find("3 + 8 = 11") != std::string::npos);
+    EXPECT_TRUE(stepString.find("Final result: 11") != std::string::npos);
+}
+
+TEST_F(BinaryExpressionTreeTest, StepByStepWithParentheses) {
+    tree->buildTree("(3 + 4) * 2");
+
+    std::vector<std::string> steps = tree->getStepByStepSolution();
+    std::string stepString = tree->getStepByStepString();
+
+    // Should show addition happens first due to parentheses
+    EXPECT_TRUE(stepString.find("Original expression: ((3 + 4) * 2)") != std::string::npos);
+    EXPECT_TRUE(stepString.find("3 + 4 = 7") != std::string::npos);
+    EXPECT_TRUE(stepString.find("7 × 2 = 14") != std::string::npos);
+}
+
+TEST_F(BinaryExpressionTreeTest, StepByStepSubtraction) {
+    tree->buildTree("10 - 3");
+
+    std::string stepString = tree->getStepByStepString();
+
+    EXPECT_TRUE(stepString.find("10 - 3 = 7") != std::string::npos);
+    EXPECT_TRUE(stepString.find("Final result: 7") != std::string::npos);
+}
+
+TEST_F(BinaryExpressionTreeTest, StepByStepDivision) {
+    tree->buildTree("15 / 3");
+
+    std::string stepString = tree->getStepByStepString();
+
+    EXPECT_TRUE(stepString.find("15 ÷ 3 = 5") != std::string::npos);
+    EXPECT_TRUE(stepString.find("Final result: 5") != std::string::npos);
+}
+
 // Tests specifically for traversal methods
 TEST_F(BinaryExpressionTreeTest, InorderTraversalTests) {
     // Simple expression

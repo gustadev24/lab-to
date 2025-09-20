@@ -26,6 +26,11 @@ private:
     int getHeightHelper(const BETNode* node) const;
     int getNodeCountHelper(const BETNode* node) const;
 
+    // Helper methods for step-by-step solution
+    void generateSteps(const BETNode* node, std::vector<std::string>& steps) const;
+    std::string nodeToString(const BETNode* node) const;
+    std::string formatNumber(double number) const;
+
     // Tokenization helper
     std::vector<std::string> tokenizeInorder(const std::string& expression) const;
 
@@ -43,6 +48,10 @@ public:
 
     // Tree evaluation
     double evaluate() const;
+
+    // Step-by-step solution
+    std::vector<std::string> getStepByStepSolution() const;
+    std::string getStepByStepString() const;
 
     // Tree traversal methods
     std::string getInorderExpression() const;

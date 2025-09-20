@@ -361,3 +361,130 @@ int BinaryExpressionTree::getNodeCountHelper(const BETNode* node) const {
 
     return 1 + getNodeCountHelper(node->left) + getNodeCountHelper(node->right);
 }
+
+std::vector<std::string> BinaryExpressionTree::getStepByStepSolution() const {
+    std::vector<std::string> steps;
+
+    if (!root) {
+        steps.push_back("Error: Empty expression tree");
+        return steps;
+    }
+
+    // Add initial expression
+    steps.push_back("Original expression: " + getInorderExpression());
+    steps.push_back("Postorder evaluation sequence: " + getPostorderExpression());
+    steps.push_back("");
+    steps.push_back("Step-by-step evaluation:");
+
+    generateSteps(root, steps);
+
+    steps.push_back("");
+    steps.push_back("Final result: " + formatNumber(evaluate()));
+
+    return steps;
+}
+
+std::string BinaryExpressionTree::getStepByStepString() const {
+    std::vector<std::string> steps = getStepByStepSolution();
+    std::string result;
+
+    for (size_t i = 0; i < steps.size(); ++i) {
+        result += steps[i];
+        if (i < steps.size() - 1) {
+            result += "\n";
+        }
+    }
+
+    return result;
+}
+
+void BinaryExpressionTree::generateSteps(const BETNode* node, std::vector<std::string>& steps) const {
+    if (!node) {
+        return;
+    }
+
+    if (node->isOperand()) {
+        steps.push_back("  Value: " + node->value);
+        return;
+    }
+
+    if (node->isOperator()) {
+        // First evaluate left and right subtrees
+        if (node->left) {
+            steps.push_back("  Evaluating left operand for '" + node->value + "':");
+            generateSteps(node->left, steps);
+        }
+
+        if (node->right) {
+            steps.push_back("  Evaluating right operand for '" + node->value + "':");
+            generateSteps(node->right, steps);
+        }
+
+        // Now perform the operation
+        double leftVal = evaluateNode(node->left);
+        double rightVal = evaluateNode(node->right);
+
+        std::string leftStr = nodeToString(node->left);
+        std::string rightStr = nodeToString(node->right);
+
+        std::string operation = leftStr + " " + node->value + " " + rightStr;
+
+        double result;
+        if (node->value == "+") {
+            result = leftVal + rightVal;
+            steps.push_back("  " + operation + " = " + formatNumber(leftVal) + " + " + formatNumber(rightVal) + " = " + formatNumber(result));
+        } else if (node->value == "-") {
+            result = leftVal - rightVal;
+            steps.push_back("  " + operation + " = " + formatNumber(leftVal) + " - " + formatNumber(rightVal) + " = " + formatNumber(result));
+        } else if (node->value == "*") {
+            result = leftVal * rightVal;
+            steps.push_back("  " + operation + " = " + formatNumber(leftVal) + " × " + formatNumber(rightVal) + " = " + formatNumber(result));
+        } else if (node->value == "/") {
+            if (rightVal == 0) {
+                steps.push_back("  " + operation + " = " + formatNumber(leftVal) + " ÷ " + formatNumber(rightVal) + " = ERROR: Division by zero");
+                return;
+            }
+            result = leftVal / rightVal;
+            steps.push_back("  " + operation + " = " + formatNumber(leftVal) + " ÷ " + formatNumber(rightVal) + " = " + formatNumber(result));
+        }
+    }
+}
+
+std::string BinaryExpressionTree::nodeToString(const BETNode* node) const {
+    if (!node) {
+        return "";
+    }
+
+    if (node->isOperand()) {
+        return node->value;
+    }
+
+    if (node->isOperator()) {
+        std::string leftStr = nodeToString(node->left);
+        std::string rightStr = nodeToString(node->right);
+        return "(" + leftStr + " " + node->value + " " + rightStr + ")";
+    }
+
+    return "";
+}
+
+std::string BinaryExpressionTree::formatNumber(double number) const {
+    // Convert to string with 6 decimal places
+    std::string str = std::to_string(number);
+
+    // Find decimal point
+    size_t decimalPos = str.find('.');
+    if (decimalPos == std::string::npos) {
+        return str;
+    }
+
+    // Remove trailing zeros
+    str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+
+    // Remove trailing decimal point if no decimals left
+    if (!str.empty() && str.back() == '.') {
+        str.pop_back();
+    }
+
+    return str;
+}
