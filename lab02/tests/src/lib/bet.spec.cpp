@@ -282,3 +282,129 @@ TEST_F(BinaryExpressionTreeTest, MultipleParentheses) {
     EXPECT_DOUBLE_EQ(tree->evaluate(), 14.0);
     EXPECT_EQ(tree->getInorderExpression(), "((3 + 4) * 2)");
 }
+
+// Tests specifically for traversal methods
+TEST_F(BinaryExpressionTreeTest, InorderTraversalTests) {
+    // Simple expression
+    tree->buildTree("5 + 3");
+    EXPECT_EQ(tree->getInorderExpression(), "(5 + 3)");
+
+    // Complex expression with precedence
+    tree->buildTree("2 + 3 * 4");
+    EXPECT_EQ(tree->getInorderExpression(), "(2 + (3 * 4))");
+
+    // Expression with parentheses
+    tree->buildTree("(2 + 3) * 4");
+    EXPECT_EQ(tree->getInorderExpression(), "((2 + 3) * 4)");
+
+    // Multiple operations same precedence
+    tree->buildTree("10 - 5 - 2");
+    EXPECT_EQ(tree->getInorderExpression(), "((10 - 5) - 2)");
+
+    // Complex nested expression
+    tree->buildTree("((1 + 2) * 3) + (4 / 2)");
+    EXPECT_EQ(tree->getInorderExpression(), "(((1 + 2) * 3) + (4 / 2))");
+
+    // Single number
+    tree->buildTree("42");
+    EXPECT_EQ(tree->getInorderExpression(), "42");
+
+    // Negative numbers
+    tree->buildTree("-5 + 10");
+    EXPECT_EQ(tree->getInorderExpression(), "(-5 + 10)");
+}
+
+TEST_F(BinaryExpressionTreeTest, PreorderTraversalTests) {
+    // Simple expression
+    tree->buildTree("5 + 3");
+    EXPECT_EQ(tree->getPreorderExpression(), "+ 5 3");
+
+    // Complex expression with precedence
+    tree->buildTree("2 + 3 * 4");
+    EXPECT_EQ(tree->getPreorderExpression(), "+ 2 * 3 4");
+
+    // Expression with parentheses
+    tree->buildTree("(2 + 3) * 4");
+    EXPECT_EQ(tree->getPreorderExpression(), "* + 2 3 4");
+
+    // Multiple operations same precedence
+    tree->buildTree("10 - 5 - 2");
+    EXPECT_EQ(tree->getPreorderExpression(), "- - 10 5 2");
+
+    // All four operations
+    tree->buildTree("1 + 2 * 3 - 4 / 2");
+    EXPECT_EQ(tree->getPreorderExpression(), "- + 1 * 2 3 / 4 2");
+
+    // Single number
+    tree->buildTree("42");
+    EXPECT_EQ(tree->getPreorderExpression(), "42");
+
+    // Negative numbers
+    tree->buildTree("-7 * 2");
+    EXPECT_EQ(tree->getPreorderExpression(), "* -7 2");
+
+    // Complex nested expression
+    tree->buildTree("(5 + 3) * (8 - 2)");
+    EXPECT_EQ(tree->getPreorderExpression(), "* + 5 3 - 8 2");
+}
+
+TEST_F(BinaryExpressionTreeTest, PostorderTraversalTests) {
+    // Simple expression
+    tree->buildTree("5 + 3");
+    EXPECT_EQ(tree->getPostorderExpression(), "5 3 +");
+
+    // Complex expression with precedence
+    tree->buildTree("2 + 3 * 4");
+    EXPECT_EQ(tree->getPostorderExpression(), "2 3 4 * +");
+
+    // Expression with parentheses
+    tree->buildTree("(2 + 3) * 4");
+    EXPECT_EQ(tree->getPostorderExpression(), "2 3 + 4 *");
+
+    // Multiple operations same precedence
+    tree->buildTree("10 - 5 - 2");
+    EXPECT_EQ(tree->getPostorderExpression(), "10 5 - 2 -");
+
+    // All four operations
+    tree->buildTree("1 + 2 * 3 - 4 / 2");
+    EXPECT_EQ(tree->getPostorderExpression(), "1 2 3 * + 4 2 / -");
+
+    // Single number
+    tree->buildTree("42");
+    EXPECT_EQ(tree->getPostorderExpression(), "42");
+
+    // Negative numbers
+    tree->buildTree("-7 * 2");
+    EXPECT_EQ(tree->getPostorderExpression(), "-7 2 *");
+
+    // Complex nested expression
+    tree->buildTree("(5 + 3) * (8 - 2)");
+    EXPECT_EQ(tree->getPostorderExpression(), "5 3 + 8 2 - *");
+
+    // Division and multiplication precedence
+    tree->buildTree("12 / 3 * 2");
+    EXPECT_EQ(tree->getPostorderExpression(), "12 3 / 2 *");
+}
+
+TEST_F(BinaryExpressionTreeTest, TraversalConsistencyTests) {
+    // Test that all three traversals work together correctly
+    tree->buildTree("(1 + 2) * (3 - 4)");
+
+    std::string inorder = tree->getInorderExpression();
+    std::string preorder = tree->getPreorderExpression();
+    std::string postorder = tree->getPostorderExpression();
+
+    EXPECT_EQ(inorder, "((1 + 2) * (3 - 4))");
+    EXPECT_EQ(preorder, "* + 1 2 - 3 4");
+    EXPECT_EQ(postorder, "1 2 + 3 4 - *");
+
+    // Verify the evaluation is correct
+    EXPECT_DOUBLE_EQ(tree->evaluate(), -3.0); // (1+2) * (3-4) = 3 * (-1) = -3
+}
+
+TEST_F(BinaryExpressionTreeTest, EmptyTreeTraversals) {
+    // Empty tree should return empty strings for all traversals
+    EXPECT_EQ(tree->getInorderExpression(), "");
+    EXPECT_EQ(tree->getPreorderExpression(), "");
+    EXPECT_EQ(tree->getPostorderExpression(), "");
+}
