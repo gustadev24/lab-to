@@ -10,8 +10,6 @@ class CalculatorCore {
 
     double inferOperation(const std::string& op, double left, double right);
 
-    double add(double a, double b);
-
     FRIEND_TEST(CalculatorCoreTest, ComputeBasic);
 
 

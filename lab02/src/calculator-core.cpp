@@ -51,14 +51,11 @@ double CalculatorCore::inferOperation(const std::string& op, double left, double
   if (exec == nullptr)
     throw std::runtime_error("Unknown operation: " + op);
 
-  this->result = (*exec).getResult();
-  return this->getResult();
+  this->result = exec->getResult();
+  double resultValue = this->getResult();
+  delete exec;
+  return resultValue;
 
-}
-
-double CalculatorCore::add(double a, double b) {
-  SumOperation sum(a, b);
-  return sum.getResult();
 }
 
 double CalculatorCore::getResult() const {

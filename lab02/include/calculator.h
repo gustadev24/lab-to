@@ -9,15 +9,16 @@
 class Calculator {
   private:
     const std::string input;
-    CalculatorParser parser;
-    CalculatorCore solver;
-    CalculatorHistory history;
+    CalculatorParser* parser;
+    CalculatorCore* solver;
+    CalculatorHistory* history;
     std::optional<double> result;
 
     FRIEND_TEST(CalculatorTest, ComputeBasicExpressions);
 
   public:
     Calculator();
+    ~Calculator();
     double compute(const std::string& input);
     double getResult() const;
     CalculatorHistory getHistory() const;

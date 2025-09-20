@@ -7,7 +7,7 @@ int main() {
   std::cout << "Welcome to Calculator!" << std::endl;
   std::cout << "Choose an option (1-4):" << std::endl;
   bool wantContinue = true;
-  Calculator calc;
+  Calculator* calc = new Calculator();
   do {
     std::cout << "1. Ingresar operación." << std::endl;
     std::cout << "2. Mostrar historial." << std::endl;
@@ -39,7 +39,7 @@ int main() {
       std::string line;
       while (std::getline(file, line)) {
         try {
-          double result = calc.compute(line);
+          double result = calc->compute(line);
           std::cout << line << " = " << result << std::endl;
           out << line << " = " << result << std::endl;
         } catch(const std::exception& e) {
@@ -49,14 +49,14 @@ int main() {
       }
       continue;
     } else if (choice == "2") {
-      std::cout << "History:\n" << calc.getHistory().getHistory() << std::endl;
+      std::cout << "History:\n" << calc->getHistory().getHistory() << std::endl;
       continue;
     } else if (choice == "1") {
       std::cout << "Enter an operation:" << std::endl;
       std::string input;
       std::getline(std::cin, input);
       try {
-        double result = calc.compute(input);
+        double result = calc->compute(input);
         std::cout << "Result: " << result << std::endl;
       } catch (const std::exception& e) {
         std::cout << "Error: " << e.what() << std::endl;
@@ -66,6 +66,7 @@ int main() {
       continue;
     }
   } while (true);
-  std::cout << "History:\n" << calc.getHistory().getHistory() << std::endl;
+  std::cout << "History:\n" << calc->getHistory().getHistory() << std::endl;
+  delete calc;
   std::cout << "Exiting Calculator. Goodbye!" << std::endl;
 }
