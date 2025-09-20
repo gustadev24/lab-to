@@ -49,7 +49,7 @@ int main() {
       }
       continue;
     } else if (choice == "2") {
-      std::cout << "History:\n" << calc->getHistory().getHistory() << std::endl;
+      std::cout << "History:\n" << calc->getHistory()->getHistory() << std::endl;
       continue;
     } else if (choice == "1") {
       std::cout << "Enter an operation:" << std::endl;
@@ -66,7 +66,7 @@ int main() {
       continue;
     }
   } while (true);
-  std::cout << "History:\n" << calc->getHistory().getHistory() << std::endl;
+  std::cout << "History:\n" << calc->getHistory()->getHistory() << std::endl;
   delete calc;
   std::cout << "Exiting Calculator. Goodbye!" << std::endl;
 }

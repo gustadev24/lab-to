@@ -30,6 +30,6 @@ double Calculator::getResult() const {
   return this->result.value();
 }
 
-CalculatorHistory Calculator::getHistory() const {
-  return *this->history;
+CalculatorHistory* Calculator::getHistory() const {
+  return this->history;
 }

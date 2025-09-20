@@ -21,5 +21,5 @@ class Calculator {
     ~Calculator();
     double compute(const std::string& input);
     double getResult() const;
-    CalculatorHistory getHistory() const;
+    CalculatorHistory* getHistory() const;
 };
