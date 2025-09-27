@@ -1,5 +1,7 @@
 #include "Teacher.h"
+#include "Grade.h"
 #include "Person.h"
+#include <optional>
 
 Teacher::Teacher(std::string id, std::string names, std::string surnames, int age): Person(id, names, surnames) {
     this->age = age;
@@ -18,6 +20,10 @@ Teacher::Teacher(std::string id): Person(id) {
 
 int Teacher::getAge() {
     return this->age;
+}
+
+std::optional<Grade> Teacher::getResponsibleOf() {
+    return this->responsibleOf.value_or(Grade::FIRST);
 }
 
 std::string Teacher::toString() {
