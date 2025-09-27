@@ -1,19 +1,14 @@
 #pragma once
 #include <string>
 #include "Grade.h"
+#include "Person.h"
 
-class Student {
+class Student: public Person {
   private:
-    std::string id;
     Grade grade;
-    std::string names;
-    std::string surnames;
 
   public:
     Student(std::string id, Grade grade, std::string names, std::string surnames);
-    std::string getId();
     Grade getGrade();
-    std::string getNames();
-    std::string getSurnames();
-    std::string toString();
+    std::string toString() override;
 };

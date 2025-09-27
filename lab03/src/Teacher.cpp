@@ -1,22 +1,14 @@
 #include "Teacher.h"
+#include "Person.h"
 
-Teacher::Teacher(std::string id, std::string names, std::string surnames, int age) {
-    this->id = id;
-    this->names = names;
-    this->surnames = surnames;
+Teacher::Teacher(std::string id, std::string names, std::string surnames, int age): Person(id, names, surnames) {
     this->age = age;
+    this->responsibleOf = std::nullopt;
 }
 
-std::string Teacher::getId() {
-    return this->id;
-}
-
-std::string Teacher::getNames() {
-    return this->names;
-}
-
-std::string Teacher::getSurnames() {
-    return this->surnames;
+Teacher::Teacher(std::string id, std::string names, std::string surnames, int age, Grade responsibleOf): Person(id, names, surnames) {
+    this->age = age;
+    this->responsibleOf = responsibleOf;
 }
 
 int Teacher::getAge() {
