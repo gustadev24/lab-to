@@ -4,6 +4,8 @@
 #include "Teacher.h"
 #include "Grade.h"
 #include <iostream>
+#include <algorithm>
+#include <cctype>
 
 School::School(std::vector<Student*> students, std::vector<Teacher*> teachers, std::vector<Course*> courses, std::vector<Assignment*> assignments) {
     this->students = students;
@@ -268,4 +270,69 @@ void School::showTeacherStatistics(const std::string& teacherId) const {
     }
 
     std::cout << "=======================================" << std::endl;
+}
+
+Student* School::searchStudentById(const std::string& studentId) const {
+    for (Student* student : this->students) {
+        if (student->getId() == studentId) {
+            return student;
+        }
+    }
+    return nullptr;
+}
+
+std::vector<Teacher*> School::searchTeachersByName(const std::string& teacherName) const {
+    std::vector<Teacher*> foundTeachers;
+
+    for (Teacher* teacher : this->teachers) {
+        std::string fullName = teacher->getNames() + " " + teacher->getSurnames();
+
+        // Check if the search name is contained in full name (case insensitive)
+        std::string searchLower = teacherName;
+        std::string fullNameLower = fullName;
+
+        std::transform(searchLower.begin(), searchLower.end(), searchLower.begin(), ::tolower);
+        std::transform(fullNameLower.begin(), fullNameLower.end(), fullNameLower.begin(), ::tolower);
+
+        if (fullNameLower.find(searchLower) != std::string::npos) {
+            foundTeachers.push_back(teacher);
+        }
+    }
+
+    return foundTeachers;
+}
+
+std::vector<Student*> School::searchStudentsByCourse(const std::string& courseId) const {
+    std::vector<Student*> studentsInCourse;
+
+    // Find all assignments for this course and collect unique students
+    for (Assignment* assignment : this->assignments) {
+        if (assignment->getCourse()->getId() == courseId) {
+            Student* student = assignment->getStudent();
+
+            // Check if student is already in the list to avoid duplicates
+            bool alreadyAdded = false;
+            for (Student* existingStudent : studentsInCourse) {
+                if (existingStudent->getId() == student->getId()) {
+                    alreadyAdded = true;
+                    break;
+                }
+            }
+
+            if (!alreadyAdded) {
+                studentsInCourse.push_back(student);
+            }
+        }
+    }
+
+    return studentsInCourse;
+}
+
+Course* School::searchCourseById(const std::string& courseId) const {
+    for (Course* course : this->courses) {
+        if (course->getId() == courseId) {
+            return course;
+        }
+    }
+    return nullptr;
 }

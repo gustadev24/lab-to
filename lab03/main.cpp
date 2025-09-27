@@ -18,6 +18,10 @@ std::vector<std::string> options = {
   "Mark assignment as presented",
   "Show assignment delivery statistics",
   "Show specific teacher statistics",
+  "Search student by ID",
+  "Search teachers by name",
+  "Search students by course",
+  "Comprehensive search menu",
 };
 
 // Helper function to convert string to Grade pointer
@@ -419,6 +423,216 @@ void showSpecificTeacherStatistics(School& school) {
   school.showTeacherStatistics(teacherId);
 }
 
+// Search student by ID
+void searchStudentById(School& school) {
+  std::cout << "\n--- Search Student by ID ---" << std::endl;
+
+  std::string studentId = getStringInput("Enter student ID: ");
+
+  Student* student = school.searchStudentById(studentId);
+
+  if (student == nullptr) {
+    std::cout << "Student with ID " << studentId << " not found." << std::endl;
+    return;
+  }
+
+  std::cout << "\n✓ Student found:" << std::endl;
+  std::cout << student->toString() << std::endl;
+
+  // Show additional information
+  auto assignments = school.getAllAssignmentsByStudentId(studentId);
+  int deliveredCount = 0;
+  for (auto assignment : assignments) {
+    if (assignment->isPresented()) {
+      deliveredCount++;
+    }
+  }
+
+  std::cout << "Total assignments: " << assignments.size() << std::endl;
+  std::cout << "Delivered assignments: " << deliveredCount << std::endl;
+  if (!assignments.empty()) {
+    double percentage = (double)deliveredCount / assignments.size() * 100.0;
+    std::cout << "Delivery percentage: " << percentage << "%" << std::endl;
+  }
+}
+
+// Search teachers by name
+void searchTeachersByName(School& school) {
+  std::cout << "\n--- Search Teachers by Name ---" << std::endl;
+
+  std::string teacherName = getStringInput("Enter teacher name (partial name allowed): ");
+
+  auto teachers = school.searchTeachersByName(teacherName);
+
+  if (teachers.empty()) {
+    std::cout << "No teachers found with name containing: " << teacherName << std::endl;
+    return;
+  }
+
+  std::cout << "\n✓ Found " << teachers.size() << " teacher(s):" << std::endl;
+  for (size_t i = 0; i < teachers.size(); i++) {
+    std::cout << (i + 1) << ". " << teachers[i]->toString() << std::endl;
+
+    // Show courses taught by this teacher
+    auto courses = school.getCoursesByTeacherId(teachers[i]->getId());
+    if (!courses.empty()) {
+      std::cout << "   Courses taught: ";
+      for (size_t j = 0; j < courses.size(); j++) {
+        if (j > 0) std::cout << ", ";
+        std::cout << courses[j]->getName();
+      }
+      std::cout << std::endl;
+    }
+
+    // Show students under responsibility
+    auto students = school.getStudentsByTeacherId(teachers[i]->getId());
+    std::cout << "   Students under responsibility: " << students.size() << std::endl;
+  }
+}
+
+// Search students by course
+void searchStudentsByCourse(School& school) {
+  std::cout << "\n--- Search Students by Course ---" << std::endl;
+
+  std::string courseId = getStringInput("Enter course ID: ");
+
+  Course* course = school.searchCourseById(courseId);
+  if (course == nullptr) {
+    std::cout << "Course with ID " << courseId << " not found." << std::endl;
+    return;
+  }
+
+  auto students = school.searchStudentsByCourse(courseId);
+
+  if (students.empty()) {
+    std::cout << "No students found for course: " << course->getName() << std::endl;
+    return;
+  }
+
+  std::cout << "\n✓ Course: " << course->getName() << " (" << courseId << ")" << std::endl;
+  std::cout << "Teacher: " << course->getTeacher()->getNames() << " "
+            << course->getTeacher()->getSurnames() << std::endl;
+  std::cout << "Students enrolled (" << students.size() << "):" << std::endl;
+
+  for (size_t i = 0; i < students.size(); i++) {
+    std::cout << (i + 1) << ". " << students[i]->toString() << std::endl;
+
+    // Show assignments for this student in this course
+    auto allAssignments = school.getAllAssignmentsByStudentId(students[i]->getId());
+    int courseAssignments = 0;
+    int deliveredCourseAssignments = 0;
+
+    for (auto assignment : allAssignments) {
+      if (assignment->getCourse()->getId() == courseId) {
+        courseAssignments++;
+        if (assignment->isPresented()) {
+          deliveredCourseAssignments++;
+        }
+      }
+    }
+
+    std::cout << "   Assignments in this course: " << deliveredCourseAssignments
+              << "/" << courseAssignments;
+    if (courseAssignments > 0) {
+      double percentage = (double)deliveredCourseAssignments / courseAssignments * 100.0;
+      std::cout << " (" << percentage << "%)";
+    }
+    std::cout << std::endl;
+  }
+}
+
+// Helper function to show available search options
+void showAvailableSearchOptions(School& school) {
+  std::cout << "\n--- Available Search Options ---" << std::endl;
+
+  // Show available student IDs
+  const auto& students = school.getStudents();
+  std::cout << "Available Student IDs: ";
+  for (size_t i = 0; i < students.size() && i < 5; i++) {
+    if (i > 0) std::cout << ", ";
+    std::cout << students[i]->getId();
+  }
+  if (students.size() > 5) {
+    std::cout << " ... (and " << (students.size() - 5) << " more)";
+  }
+  std::cout << std::endl;
+
+  // Show available teacher names
+  const auto& teachers = school.getTeachers();
+  std::cout << "Available Teacher Names: ";
+  for (size_t i = 0; i < teachers.size() && i < 3; i++) {
+    if (i > 0) std::cout << ", ";
+    std::cout << teachers[i]->getNames() << " " << teachers[i]->getSurnames();
+  }
+  if (teachers.size() > 3) {
+    std::cout << " ... (and " << (teachers.size() - 3) << " more)";
+  }
+  std::cout << std::endl;
+
+  // Show available course IDs
+  const auto& courses = school.getCourses();
+  std::cout << "Available Course IDs: ";
+  for (size_t i = 0; i < courses.size() && i < 5; i++) {
+    if (i > 0) std::cout << ", ";
+    std::cout << courses[i]->getId();
+  }
+  if (courses.size() > 5) {
+    std::cout << " ... (and " << (courses.size() - 5) << " more)";
+  }
+  std::cout << std::endl;
+  std::cout << "=======================================" << std::endl;
+}
+
+// Comprehensive search menu
+void comprehensiveSearchMenu(School& school) {
+  showAvailableSearchOptions(school);
+
+  std::cout << "\n--- Comprehensive Search Menu ---" << std::endl;
+  std::cout << "1. Search student by ID" << std::endl;
+  std::cout << "2. Search teachers by name" << std::endl;
+  std::cout << "3. Search students by course" << std::endl;
+  std::cout << "4. Search course by ID" << std::endl;
+  std::cout << "0. Return to main menu" << std::endl;
+
+  int option;
+  std::cout << "Enter your choice: ";
+  std::cin >> option;
+  clearInputBuffer();
+
+  switch (option) {
+    case 1:
+      searchStudentById(school);
+      break;
+    case 2:
+      searchTeachersByName(school);
+      break;
+    case 3:
+      searchStudentsByCourse(school);
+      break;
+    case 4: {
+      std::cout << "\n--- Search Course by ID ---" << std::endl;
+      std::string courseId = getStringInput("Enter course ID: ");
+      Course* course = school.searchCourseById(courseId);
+
+      if (course == nullptr) {
+        std::cout << "Course with ID " << courseId << " not found." << std::endl;
+      } else {
+        std::cout << "\n✓ Course found:" << std::endl;
+        std::cout << course->toString() << std::endl;
+
+        auto students = school.searchStudentsByCourse(courseId);
+        std::cout << "Students enrolled: " << students.size() << std::endl;
+      }
+      break;
+    }
+    case 0:
+      return;
+    default:
+      std::cout << "Invalid option." << std::endl;
+      break;
+  }
+}
+
 int readOption() {
   std::cout << "\nChoose an option:" << std::endl;
   for (size_t i = 0; i < options.size(); i++) {
@@ -491,6 +705,18 @@ int main() {
         break;
       case 11:
         showSpecificTeacherStatistics(school);
+        break;
+      case 12:
+        searchStudentById(school);
+        break;
+      case 13:
+        searchTeachersByName(school);
+        break;
+      case 14:
+        searchStudentsByCourse(school);
+        break;
+      case 15:
+        comprehensiveSearchMenu(school);
         break;
       case 0:
         std::cout << "Exiting classroom management system..." << std::endl;

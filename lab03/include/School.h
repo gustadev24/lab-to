@@ -31,4 +31,10 @@ class School {
     void showAssignmentDeliveryStatistics() const;
     void showTeacherStatistics(const std::string& teacherId) const;
 
+    // Search functions (no printing, return data only)
+    Student* searchStudentById(const std::string& studentId) const;
+    std::vector<Teacher*> searchTeachersByName(const std::string& teacherName) const;
+    std::vector<Student*> searchStudentsByCourse(const std::string& courseId) const;
+    Course* searchCourseById(const std::string& courseId) const;
+
 };
