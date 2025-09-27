@@ -59,15 +59,60 @@ std::vector<Course*> createMockCourses(const std::vector<Teacher*>& teachers) {
 
 std::vector<Assignment*> createMockAssignments(const std::vector<Student*>& students, const std::vector<Course*>& courses) {
     std::vector<Assignment*> assignments;
-    assignments.push_back(new Assignment("A001", "Algebra Homework", students[0], courses[0]));
-    assignments.push_back(new Assignment("A002", "Physics Lab Report", students[1], courses[1]));
-    assignments.push_back(new Assignment("A003", "Chemistry Project", students[2], courses[2]));
-    assignments.push_back(new Assignment("A004", "Biology Presentation", students[3], courses[3]));
-    assignments.push_back(new Assignment("A005", "History Essay", students[4], courses[4]));
-    assignments.push_back(new Assignment("A006", "Geography Map Analysis", students[5], courses[5]));
-    assignments.push_back(new Assignment("A007", "English Literature Review", students[6], courses[6]));
-    assignments.push_back(new Assignment("A008", "Computer Science Coding Assignment", students[7], courses[7]));
-    assignments.push_back(new Assignment("A009", "Art Portfolio", students[8], courses[8]));
-    assignments.push_back(new Assignment("A010", "Physical Education Fitness Plan", students[9], courses[9]));
+
+    // Create assignments - some will be presented, some pending
+    Assignment* a1 = new Assignment("A001", "Algebra Homework", students[0], courses[0]);
+    a1->present(); // Mark as presented
+    assignments.push_back(a1);
+
+    Assignment* a2 = new Assignment("A002", "Physics Lab Report", students[1], courses[1]);
+    // Leave as pending (not presented)
+    assignments.push_back(a2);
+
+    Assignment* a3 = new Assignment("A003", "Chemistry Project", students[2], courses[2]);
+    a3->present(); // Mark as presented
+    assignments.push_back(a3);
+
+    Assignment* a4 = new Assignment("A004", "Biology Presentation", students[3], courses[3]);
+    // Leave as pending
+    assignments.push_back(a4);
+
+    Assignment* a5 = new Assignment("A005", "History Essay", students[4], courses[4]);
+    a5->present(); // Mark as presented
+    assignments.push_back(a5);
+
+    Assignment* a6 = new Assignment("A006", "Geography Map Analysis", students[5], courses[5]);
+    // Leave as pending
+    assignments.push_back(a6);
+
+    Assignment* a7 = new Assignment("A007", "English Literature Review", students[6], courses[6]);
+    a7->present(); // Mark as presented
+    assignments.push_back(a7);
+
+    Assignment* a8 = new Assignment("A008", "Computer Science Coding Assignment", students[7], courses[7]);
+    // Leave as pending
+    assignments.push_back(a8);
+
+    Assignment* a9 = new Assignment("A009", "Art Portfolio", students[8], courses[8]);
+    a9->present(); // Mark as presented
+    assignments.push_back(a9);
+
+    Assignment* a10 = new Assignment("A010", "Physical Education Fitness Plan", students[9], courses[9]);
+    // Leave as pending
+    assignments.push_back(a10);
+
+    // Add some additional assignments to demonstrate multiple assignments per student
+    Assignment* a11 = new Assignment("A011", "Advanced Algebra", students[0], courses[10]); // Student S001 has 2 assignments
+    // Leave as pending
+    assignments.push_back(a11);
+
+    Assignment* a12 = new Assignment("A012", "Physics Experiment", students[1], courses[11]); // Student S002 has 2 assignments
+    a12->present(); // Mark as presented
+    assignments.push_back(a12);
+
+    Assignment* a13 = new Assignment("A013", "Programming Project", students[7], courses[12]); // Student S008 has 2 assignments
+    a13->present(); // Mark as presented
+    assignments.push_back(a13);
+
     return assignments;
 }

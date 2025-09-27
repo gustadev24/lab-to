@@ -11,10 +11,11 @@ std::vector<std::string> options = {
   "See all students",
   "Register Teacher",
   "See all teachers",
-  "Search assignments per student",
+  "Search all assignments per student (presented/pending)",
   "Search students per teacher",
   "Assign teacher to new course",
   "See all courses with teachers",
+  "Mark assignment as presented",
 };
 
 // Helper function to convert string to Grade pointer
@@ -131,30 +132,73 @@ void seeAllTeachers(School& school) {
   }
 }
 
-// Search assignments per student
+// Search assignments per student (presented and pending)
 void searchAssignmentsPerStudent(School& school) {
-  std::cout << "\n--- Search Assignments per Student ---" << std::endl;
+  std::cout << "\n--- Search All Assignments per Student (Presented and Pending) ---" << std::endl;
 
   std::string studentId = getStringInput("Enter student ID: ");
 
-  auto assignments = school.getPresentedAssignmentsByStudentId(studentId);
+  auto allAssignments = school.getAllAssignmentsByStudentId(studentId);
 
-  if (assignments.empty()) {
+  if (allAssignments.empty()) {
     std::cout << "No assignments found for student ID: " << studentId << std::endl;
     return;
   }
 
-  std::cout << "Assignments for student " << studentId << ":" << std::endl;
-  for (size_t i = 0; i < assignments.size(); i++) {
-    auto& assignment = assignments[i];
-    std::cout << (i + 1) << ". Assignment: " << assignment->getName()
-    << " (ID: " << assignment->getId() << ")" << std::endl;
-    std::cout << "   Course: " << assignment->getCourse()->getName() << std::endl;
-    std::cout << "   Presented: " << (assignment->isPresented() ? "Yes" : "No") << std::endl;
-    if (assignment->getPresentationDate()) {
-      std::cout << "   Presentation Date: " << assignment->getPresentationDate().value() << std::endl;
+  // Separate assignments into presented and pending
+  std::vector<Assignment*> presentedAssignments;
+  std::vector<Assignment*> pendingAssignments;
+
+  for (auto assignment : allAssignments) {
+    if (assignment->isPresented()) {
+      presentedAssignments.push_back(assignment);
+    } else {
+      pendingAssignments.push_back(assignment);
     }
   }
+
+  std::cout << "\n=== ASSIGNMENTS SUMMARY FOR STUDENT " << studentId << " ===" << std::endl;
+  std::cout << "Total assignments: " << allAssignments.size() << std::endl;
+  std::cout << "Presented (delivered): " << presentedAssignments.size() << std::endl;
+  std::cout << "Pending: " << pendingAssignments.size() << std::endl;
+
+  // Show presented assignments
+  if (!presentedAssignments.empty()) {
+    std::cout << "\n✓ PRESENTED ASSIGNMENTS:" << std::endl;
+    for (size_t i = 0; i < presentedAssignments.size(); i++) {
+      auto& assignment = presentedAssignments[i];
+      std::cout << "  " << (i + 1) << ". Assignment: " << assignment->getName()
+                << " (ID: " << assignment->getId() << ")" << std::endl;
+      std::cout << "     Course: " << assignment->getCourse()->getName() << std::endl;
+      std::cout << "     Status: ✓ DELIVERED" << std::endl;
+      if (assignment->getPresentationDate()) {
+        std::cout << "     Presentation Date: " << assignment->getPresentationDate().value() << std::endl;
+      }
+      std::cout << "     ---" << std::endl;
+    }
+  }
+
+  // Show pending assignments
+  if (!pendingAssignments.empty()) {
+    std::cout << "\n⏳ PENDING ASSIGNMENTS:" << std::endl;
+    for (size_t i = 0; i < pendingAssignments.size(); i++) {
+      auto& assignment = pendingAssignments[i];
+      std::cout << "  " << (i + 1) << ". Assignment: " << assignment->getName()
+                << " (ID: " << assignment->getId() << ")" << std::endl;
+      std::cout << "     Course: " << assignment->getCourse()->getName() << std::endl;
+      std::cout << "     Status: ⏳ PENDING" << std::endl;
+      std::cout << "     ---" << std::endl;
+    }
+  }
+
+  // Show completion percentage
+  if (!allAssignments.empty()) {
+    double completionRate = (double)presentedAssignments.size() / allAssignments.size() * 100.0;
+    std::cout << "\n📊 COMPLETION RATE: " << completionRate << "% ("
+              << presentedAssignments.size() << "/" << allAssignments.size() << " assignments completed)" << std::endl;
+  }
+
+  std::cout << "=======================================" << std::endl;
 }
 
 // Search students per teacher
@@ -291,6 +335,75 @@ void seeAllCoursesWithTeachers(School& school) {
   }
 }
 
+// Mark assignment as presented
+void markAssignmentAsPresented(School& school) {
+  std::cout << "\n--- Mark Assignment as Presented ---" << std::endl;
+
+  std::string studentId = getStringInput("Enter student ID: ");
+
+  auto allAssignments = school.getAllAssignmentsByStudentId(studentId);
+
+  if (allAssignments.empty()) {
+    std::cout << "No assignments found for student ID: " << studentId << std::endl;
+    return;
+  }
+
+  // Find pending assignments
+  std::vector<Assignment*> pendingAssignments;
+  for (auto assignment : allAssignments) {
+    if (!assignment->isPresented()) {
+      pendingAssignments.push_back(assignment);
+    }
+  }
+
+  if (pendingAssignments.empty()) {
+    std::cout << "Student " << studentId << " has no pending assignments. All assignments are already presented!" << std::endl;
+    return;
+  }
+
+  std::cout << "\nPending assignments for student " << studentId << ":" << std::endl;
+  for (size_t i = 0; i < pendingAssignments.size(); i++) {
+    std::cout << (i + 1) << ". " << pendingAssignments[i]->getName()
+              << " (ID: " << pendingAssignments[i]->getId() << ")"
+              << " - Course: " << pendingAssignments[i]->getCourse()->getName() << std::endl;
+  }
+
+  std::string assignmentId = getStringInput("\nEnter assignment ID to mark as presented: ");
+
+  // Find and mark the assignment as presented
+  Assignment* selectedAssignment = nullptr;
+  for (auto assignment : pendingAssignments) {
+    if (assignment->getId() == assignmentId) {
+      selectedAssignment = assignment;
+      break;
+    }
+  }
+
+  if (selectedAssignment == nullptr) {
+    std::cout << "Assignment with ID " << assignmentId << " not found or already presented." << std::endl;
+    return;
+  }
+
+  selectedAssignment->present();
+  std::cout << "\n✓ Assignment '" << selectedAssignment->getName()
+            << "' has been marked as presented!" << std::endl;
+  std::cout << "Presentation Date: " << selectedAssignment->getPresentationDate().value() << std::endl;
+
+  // Show updated summary
+  auto updatedAssignments = school.getAllAssignmentsByStudentId(studentId);
+  int presentedCount = 0;
+  for (auto assignment : updatedAssignments) {
+    if (assignment->isPresented()) {
+      presentedCount++;
+    }
+  }
+
+  double completionRate = (double)presentedCount / updatedAssignments.size() * 100.0;
+  std::cout << "\nUpdated completion rate for student " << studentId << ": "
+            << completionRate << "% (" << presentedCount << "/"
+            << updatedAssignments.size() << " assignments completed)" << std::endl;
+}
+
 int readOption() {
   std::cout << "\nChoose an option:" << std::endl;
   for (size_t i = 0; i < options.size(); i++) {
@@ -354,6 +467,9 @@ int main() {
         break;
       case 8:
         seeAllCoursesWithTeachers(school);
+        break;
+      case 9:
+        markAssignmentAsPresented(school);
         break;
       case 0:
         std::cout << "Exiting classroom management system..." << std::endl;

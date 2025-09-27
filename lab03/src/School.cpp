@@ -106,3 +106,13 @@ const std::vector<Course*> School::getCoursesByTeacherId(const std::string& teac
 
     return coursesByTeacher;
 }
+
+const std::vector<Assignment*> School::getAllAssignmentsByStudentId(const std::string& studentId) const {
+    std::vector<Assignment*> allAssignments;
+    for (Assignment* assignment : this->assignments) {
+        if (assignment->getStudent()->getId() == studentId) {
+            allAssignments.push_back(assignment);
+        }
+    }
+    return allAssignments;
+}
