@@ -15,9 +15,9 @@ class Grade {
     static const Grade FIFTH;
     static const Grade SIXTH;
 
-    std::string getId();
-    std::string getName();
-    std::string toString();
+    std::string getId() const;
+    std::string getName() const;
+    std::string toString() const;
 
     bool operator==(const Grade& other) const;
 };

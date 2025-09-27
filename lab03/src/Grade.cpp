@@ -5,15 +5,15 @@ Grade::Grade(std::string id, std::string name) {
     this->name = name;
 }
 
-std::string Grade::getId() {
+std::string Grade::getId() const {
     return this->id;
 }
 
-std::string Grade::getName() {
+std::string Grade::getName() const {
     return this->name;
 }
 
-std::string Grade::toString() {
+std::string Grade::toString() const {
     return "Grade{id='" + this->id + "', name='" + this->name + "'}";
 }
 

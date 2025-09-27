@@ -8,7 +8,7 @@ Teacher::Teacher(std::string id, std::string names, std::string surnames, int ag
     this->responsibleOf = std::nullopt;
 }
 
-Teacher::Teacher(std::string id, std::string names, std::string surnames, int age, Grade responsibleOf): Person(id, names, surnames) {
+Teacher::Teacher(std::string id, std::string names, std::string surnames, int age, const Grade* responsibleOf): Person(id, names, surnames) {
     this->age = age;
     this->responsibleOf = responsibleOf;
 }
@@ -22,10 +22,14 @@ int Teacher::getAge() {
     return this->age;
 }
 
-std::optional<Grade> Teacher::getResponsibleOf() {
-    return this->responsibleOf.value_or(Grade::FIRST);
+std::optional<const Grade*> Teacher::getResponsibleOf() {
+    return this->responsibleOf;
 }
 
 std::string Teacher::toString() {
-    return this->id + " " + this->names + " " + this->surnames + " " + std::to_string(this->age);
+    std::string result = this->id + " " + this->names + " " + this->surnames + " " + std::to_string(this->age);
+    if (this->responsibleOf.has_value()) {
+        result += " (Responsible for " + this->responsibleOf.value()->getName() + ")";
+    }
+    return result;
 }

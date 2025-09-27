@@ -1,18 +1,19 @@
 #pragma once
 #include <string>
-#include "Teacher.h"
+
+class Teacher;
 
 class Course {
   private:
     std::string id;
-    Teacher teacher;
+    Teacher* teacher;
     std::string name;
     int credits;
 
   public:
-    Course(std::string id, Teacher teacher, std::string name, int credits);
+    Course(std::string id, Teacher* teacher, std::string name, int credits);
     std::string getId();
-    Teacher getTeacher();
+    Teacher* getTeacher();
     std::string getName();
     int getCredits();
     std::string toString();

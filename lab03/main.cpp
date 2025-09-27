@@ -15,16 +15,21 @@ std::vector<std::string> options = {
   "Search students per teacher",
 };
 
-Grade stringToGrade(const std::string& gradeStr) {
-  if (gradeStr == "1" || gradeStr == "FIRST") return Grade::FIRST;
-  if (gradeStr == "2" || gradeStr == "SECOND") return Grade::SECOND;
-  if (gradeStr == "3" || gradeStr == "THIRD") return Grade::THIRD;
-  if (gradeStr == "4" || gradeStr == "FOURTH") return Grade::FOURTH;
-  if (gradeStr == "5" || gradeStr == "FIFTH") return Grade::FIFTH;
-  if (gradeStr == "6" || gradeStr == "SIXTH") return Grade::SIXTH;
-  return Grade::FIRST; // default
-}  // Helper function to convert string to Grade enum
+// Helper function to convert string to Grade pointer
+const Grade* stringToGrade(const std::string& gradeStr) {
+  if (gradeStr == "1" || gradeStr == "FIRST") return &Grade::FIRST;
+  if (gradeStr == "2" || gradeStr == "SECOND") return &Grade::SECOND;
+  if (gradeStr == "3" || gradeStr == "THIRD") return &Grade::THIRD;
+  if (gradeStr == "4" || gradeStr == "FOURTH") return &Grade::FOURTH;
+  if (gradeStr == "5" || gradeStr == "FIFTH") return &Grade::FIFTH;
+  if (gradeStr == "6" || gradeStr == "SIXTH") return &Grade::SIXTH;
+  return &Grade::FIRST; // default
+}
 
+// Helper function to convert Grade pointer to string
+std::string gradeToString(const Grade* grade) {
+  return grade->getName();
+}
 
 // Clear input buffer
 void clearInputBuffer() {
@@ -51,13 +56,13 @@ void registerStudent(School& school) {
   std::cout << "Available grades: 1(First), 2(Second), 3(Third), 4(Fourth), 5(Fifth), 6(Sixth)" << std::endl;
   std::string gradeInput = getStringInput("Enter student grade (1-6): ");
 
-  Grade grade = stringToGrade(gradeInput);
+  const Grade* grade = stringToGrade(gradeInput);
 
-  Student newStudent(id, grade, names, surnames);
+  Student* newStudent = new Student(id, grade, names, surnames);
   school.addStudent(newStudent);
 
   std::cout << "Student registered successfully!" << std::endl;
-  std::cout << "Student info: " << newStudent.toString() << std::endl;
+  std::cout << "Student info: " << newStudent->toString() << std::endl;
 }
 
 // Display all students
@@ -71,7 +76,7 @@ void seeAllStudents(School& school) {
   }
 
   for (size_t i = 0; i < students.size(); i++){
-    std::cout << (i + 1) << ". " << students.at(i).toString() << std::endl;
+    std::cout << (i + 1) << ". " << students.at(i)->toString() << std::endl;
   }
 }
 
@@ -93,19 +98,20 @@ void registerTeacher(School& school) {
 
   std::string responsibleChoice = getStringInput("Is this teacher responsible for a specific grade? (y/n): ");
 
-  Teacher newTeacher(id, names, surnames, age);
+  Teacher* newTeacher = new Teacher(id, names, surnames, age);
 
   if (responsibleChoice == "y" || responsibleChoice == "Y" || responsibleChoice == "yes") {
     std::cout << "Available grades: 1(First), 2(Second), 3(Third), 4(Fourth), 5(Fifth), 6(Sixth)" << std::endl;
     std::string gradeInput = getStringInput("Enter responsible grade (1-6): ");
-    Grade responsibleGrade = stringToGrade(gradeInput);
-    newTeacher = Teacher(id, names, surnames, age, responsibleGrade);
+    const Grade* responsibleGrade = stringToGrade(gradeInput);
+    delete newTeacher; // Delete the old one
+    newTeacher = new Teacher(id, names, surnames, age, responsibleGrade);
   }
 
   school.addTeacher(newTeacher);
 
   std::cout << "Teacher registered successfully!" << std::endl;
-  std::cout << "Teacher info: " << newTeacher.toString() << std::endl;
+  std::cout << "Teacher info: " << newTeacher->toString() << std::endl;
 }
 
 // Display all teachers
@@ -119,7 +125,7 @@ void seeAllTeachers(School& school) {
   }
 
   for (size_t i = 0; i < teachers.size(); i++) {
-    std::cout << (i + 1) << ". " << teachers[i].toString() << std::endl;
+    std::cout << (i + 1) << ". " << teachers[i]->toString() << std::endl;
   }
 }
 
@@ -139,12 +145,12 @@ void searchAssignmentsPerStudent(School& school) {
   std::cout << "Assignments for student " << studentId << ":" << std::endl;
   for (size_t i = 0; i < assignments.size(); i++) {
     auto& assignment = assignments[i];
-    std::cout << (i + 1) << ". Assignment: " << assignment.getName()
-    << " (ID: " << assignment.getId() << ")" << std::endl;
-    std::cout << "   Course: " << assignment.getCourse().getName() << std::endl;
-    std::cout << "   Presented: " << (assignment.isPresented() ? "Yes" : "No") << std::endl;
-    if (assignment.getPresentationDate()) {
-      std::cout << "   Presentation Date: " << assignment.getPresentationDate().value() << std::endl;
+    std::cout << (i + 1) << ". Assignment: " << assignment->getName()
+    << " (ID: " << assignment->getId() << ")" << std::endl;
+    std::cout << "   Course: " << assignment->getCourse()->getName() << std::endl;
+    std::cout << "   Presented: " << (assignment->isPresented() ? "Yes" : "No") << std::endl;
+    if (assignment->getPresentationDate()) {
+      std::cout << "   Presentation Date: " << assignment->getPresentationDate().value() << std::endl;
     }
   }
 }
@@ -164,7 +170,7 @@ void searchStudentsPerTeacher(School& school) {
 
   std::cout << "Students taught by teacher " << teacherId << ":" << std::endl;
   for (size_t i = 0; i < students.size(); i++) {
-    std::cout << (i + 1) << ". " << students[i].toString() << std::endl;
+    std::cout << (i + 1) << ". " << students[i]->toString() << std::endl;
   }
 }
 
@@ -190,7 +196,15 @@ int readOption() {
 
 int main() {
   std::cout << "Welcome to Classroom Management System" << std::endl;
-  School school(STUDENTS, TEACHER, COURSES, ASSIGNMENTS);
+
+  // Create mock data using factory functions
+  std::vector<Student*> students = createMockStudents();
+  std::vector<Teacher*> teachers = createMockTeachers();
+  std::vector<Course*> courses = createMockCourses(teachers);
+  std::vector<Assignment*> assignments = createMockAssignments(students, courses);
+
+  // School will take ownership and manage memory through its destructor
+  School school(students, teachers, courses, assignments);
 
   bool running = true;
   do {
@@ -229,5 +243,6 @@ int main() {
     }
   } while (running);
 
+  // School destructor will automatically clean up all dynamically allocated objects
   return 0;
 }

@@ -1,10 +1,12 @@
 #include "Assignment.h"
+#include "Student.h"
+#include "Course.h"
 #include <ctime>
 #include <iomanip>
 #include <sstream>
 #include <string>
 
-Assignment::Assignment(std::string id, std::string name, Student student, Course course) : student(student), course(course) {
+Assignment::Assignment(std::string id, std::string name, Student* student, Course* course) : student(student), course(course) {
     this->id = id;
     this->name = name;
     this->_isPresented = false;
@@ -27,11 +29,11 @@ bool Assignment::isPresented() {
     return this->_isPresented;
 }
 
-Student Assignment::getStudent() {
+Student* Assignment::getStudent() {
     return this->student;
 }
 
-Course Assignment::getCourse() {
+Course* Assignment::getCourse() {
     return this->course;
 }
 
