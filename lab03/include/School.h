@@ -37,4 +37,9 @@ class School {
     std::vector<Student*> searchStudentsByCourse(const std::string& courseId) const;
     Course* searchCourseById(const std::string& courseId) const;
 
+    // File persistence methods
+    bool saveToFile(const std::string& filename) const;
+    bool loadFromFile(const std::string& filename);
+    void clearData();
+
 };

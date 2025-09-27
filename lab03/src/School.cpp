@@ -6,6 +6,8 @@
 #include <iostream>
 #include <algorithm>
 #include <cctype>
+#include <fstream>
+#include <sstream>
 
 School::School(std::vector<Student*> students, std::vector<Teacher*> teachers, std::vector<Course*> courses, std::vector<Assignment*> assignments) {
     this->students = students;
@@ -142,7 +144,8 @@ void School::showAssignmentDeliveryStatistics() const {
             deliveryPercentage = (double)deliveredCount / studentAssignments.size() * 100.0;
         }
 
-        std::cout << "• Student: " << student->getNames() << " " << student->getSurnames()
+        std::cout << "• Student: " << student->getNames() << " "
+ << student->getSurnames()
                   << " (ID: " << studentId << ")" << std::endl;
         std::cout << "  Delivered assignments: " << deliveredCount << "/"
                   << studentAssignments.size() << std::endl;
@@ -335,4 +338,223 @@ Course* School::searchCourseById(const std::string& courseId) const {
         }
     }
     return nullptr;
+}
+
+bool School::saveToFile(const std::string& filename) const {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        return false;
+    }
+
+    // Save students
+    file << "[STUDENTS]" << std::endl;
+    for (Student* student : this->students) {
+        file << student->getId() << "|"
+             << student->getGrade()->getId() << "|"
+             << student->getNames() << "|"
+             << student->getSurnames() << std::endl;
+    }
+
+    // Save teachers
+    file << "[TEACHERS]" << std::endl;
+    for (Teacher* teacher : this->teachers) {
+        file << teacher->getId() << "|"
+             << teacher->getNames() << "|"
+             << teacher->getSurnames() << "|"
+             << teacher->getAge() << "|";
+
+        if (teacher->getResponsibleOf().has_value()) {
+            file << teacher->getResponsibleOf().value()->getId();
+        } else {
+            file << "NONE";
+        }
+        file << std::endl;
+    }
+
+    // Save courses
+    file << "[COURSES]" << std::endl;
+    for (Course* course : this->courses) {
+        file << course->getId() << "|"
+             << course->getTeacher()->getId() << "|"
+             << course->getName() << "|"
+             << course->getCredits() << std::endl;
+    }
+
+    // Save assignments
+    file << "[ASSIGNMENTS]" << std::endl;
+    for (Assignment* assignment : this->assignments) {
+        file << assignment->getId() << "|"
+             << assignment->getName() << "|"
+             << assignment->getStudent()->getId() << "|"
+             << assignment->getCourse()->getId() << "|"
+             << (assignment->isPresented() ? "1" : "0") << "|";
+
+        if (assignment->getPresentationDate().has_value()) {
+            file << assignment->getPresentationDate().value();
+        } else {
+            file << "NONE";
+        }
+        file << std::endl;
+    }
+
+    file.close();
+    return true;
+}
+
+bool School::loadFromFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        return false;
+    }
+
+    clearData();
+
+    std::string line;
+    std::string currentSection = "";
+
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        if (line == "[STUDENTS]") {
+            currentSection = "STUDENTS";
+            continue;
+        } else if (line == "[TEACHERS]") {
+            currentSection = "TEACHERS";
+            continue;
+        } else if (line == "[COURSES]") {
+            currentSection = "COURSES";
+            continue;
+        } else if (line == "[ASSIGNMENTS]") {
+            currentSection = "ASSIGNMENTS";
+            continue;
+        }
+
+        std::stringstream ss(line);
+        std::string token;
+
+        if (currentSection == "STUDENTS") {
+            std::vector<std::string> tokens;
+            while (std::getline(ss, token, '|')) {
+                tokens.push_back(token);
+            }
+            if (tokens.size() >= 4) {
+                const Grade* grade = nullptr;
+                if (tokens[1] == "1") grade = &Grade::FIRST;
+                else if (tokens[1] == "2") grade = &Grade::SECOND;
+                else if (tokens[1] == "3") grade = &Grade::THIRD;
+                else if (tokens[1] == "4") grade = &Grade::FOURTH;
+                else if (tokens[1] == "5") grade = &Grade::FIFTH;
+                else if (tokens[1] == "6") grade = &Grade::SIXTH;
+                else grade = &Grade::FIRST;
+
+                Student* student = new Student(tokens[0], grade, tokens[2], tokens[3]);
+                this->students.push_back(student);
+            }
+        } else if (currentSection == "TEACHERS") {
+            std::vector<std::string> tokens;
+            while (std::getline(ss, token, '|')) {
+                tokens.push_back(token);
+            }
+            if (tokens.size() >= 5) {
+                Teacher* teacher;
+                if (tokens[4] != "NONE") {
+                    const Grade* grade = nullptr;
+                    if (tokens[4] == "1") grade = &Grade::FIRST;
+                    else if (tokens[4] == "2") grade = &Grade::SECOND;
+                    else if (tokens[4] == "3") grade = &Grade::THIRD;
+                    else if (tokens[4] == "4") grade = &Grade::FOURTH;
+                    else if (tokens[4] == "5") grade = &Grade::FIFTH;
+                    else if (tokens[4] == "6") grade = &Grade::SIXTH;
+
+                    teacher = new Teacher(tokens[0], tokens[1], tokens[2], std::stoi(tokens[3]), grade);
+                } else {
+                    teacher = new Teacher(tokens[0], tokens[1], tokens[2], std::stoi(tokens[3]));
+                }
+                this->teachers.push_back(teacher);
+            }
+        } else if (currentSection == "COURSES") {
+            std::vector<std::string> tokens;
+            while (std::getline(ss, token, '|')) {
+                tokens.push_back(token);
+            }
+            if (tokens.size() >= 4) {
+                // Find teacher by ID
+                Teacher* teacher = nullptr;
+                for (Teacher* t : this->teachers) {
+                    if (t->getId() == tokens[1]) {
+                        teacher = t;
+                        break;
+                    }
+                }
+                if (teacher) {
+                    Course* course = new Course(tokens[0], teacher, tokens[2], std::stoi(tokens[3]));
+                    this->courses.push_back(course);
+                }
+            }
+        } else if (currentSection == "ASSIGNMENTS") {
+            std::vector<std::string> tokens;
+            while (std::getline(ss, token, '|')) {
+                tokens.push_back(token);
+            }
+            if (tokens.size() >= 6) {
+                // Find student by ID
+                Student* student = nullptr;
+                for (Student* s : this->students) {
+                    if (s->getId() == tokens[2]) {
+                        student = s;
+                        break;
+                    }
+                }
+
+                // Find course by ID
+                Course* course = nullptr;
+                for (Course* c : this->courses) {
+                    if (c->getId() == tokens[3]) {
+                        course = c;
+                        break;
+                    }
+                }
+
+                if (student && course) {
+                    Assignment* assignment = new Assignment(tokens[0], tokens[1], student, course);
+
+                    // Set presentation status
+                    if (tokens[4] == "1") {
+                        assignment->present();
+                    }
+
+                    this->assignments.push_back(assignment);
+                }
+            }
+        }
+    }
+
+    file.close();
+    return true;
+}
+
+void School::clearData() {
+    // Delete all assignments
+    for (Assignment* assignment : this->assignments) {
+        delete assignment;
+    }
+    this->assignments.clear();
+
+    // Delete all courses
+    for (Course* course : this->courses) {
+        delete course;
+    }
+    this->courses.clear();
+
+    // Delete all teachers
+    for (Teacher* teacher : this->teachers) {
+        delete teacher;
+    }
+    this->teachers.clear();
+
+    // Delete all students
+    for (Student* student : this->students) {
+        delete student;
+    }
+    this->students.clear();
 }

@@ -1,0 +1,51 @@
+[STUDENTS]
+S001|5|Alice|Johnson
+S002|6|Bob|Smith
+S003|1|Charlie|Brown
+S004|2|Diana|Prince
+S005|3|Ethan|Hunt
+S006|4|Fiona|Gallagher
+S007|5|George|Miller
+S008|6|Hannah|Montana
+S009|1|Ian|Sommerhalder
+S010|2|Jenna|Marbles
+[TEACHERS]
+T001|Emily|Carter|24|1
+T002|Michael|Johnson|30|2
+T003|Sarah|Williams|28|3
+T004|David|Brown|35|4
+T005|Laura|Davis|32|5
+T006|James|Miller|29|6
+T007|Olivia|Wilson|27|NONE
+T008|Daniel|Moore|31|NONE
+T009|Sophia|Taylor|26|NONE
+T010|Matthew|Anderson|33|NONE
+[COURSES]
+C001|T001|Mathematics|4
+C002|T002|Physics|3
+C003|T003|Chemistry|4
+C004|T004|Biology|3
+C005|T005|History|2
+C006|T006|Geography|2
+C007|T007|English Literature|3
+C008|T008|Computer Science|4
+C009|T009|Art|2
+C010|T010|Physical Education|1
+C011|T001|Advanced Mathematics|4
+C012|T002|Advanced Physics|3
+C013|T008|Programming Fundamentals|3
+C014|T007|Creative Writing|2
+[ASSIGNMENTS]
+A001|Algebra Homework|S001|C001|1|2025-09-27
+A002|Physics Lab Report|S002|C002|0|NONE
+A003|Chemistry Project|S003|C003|1|2025-09-27
+A004|Biology Presentation|S004|C004|0|NONE
+A005|History Essay|S005|C005|1|2025-09-27
+A006|Geography Map Analysis|S006|C006|0|NONE
+A007|English Literature Review|S007|C007|1|2025-09-27
+A008|Computer Science Coding Assignment|S008|C008|0|NONE
+A009|Art Portfolio|S009|C009|1|2025-09-27
+A010|Physical Education Fitness Plan|S010|C010|0|NONE
+A011|Advanced Algebra|S001|C011|0|NONE
+A012|Physics Experiment|S002|C012|1|2025-09-27
+A013|Programming Project|S008|C013|1|2025-09-27

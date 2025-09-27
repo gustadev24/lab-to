@@ -22,6 +22,8 @@ std::vector<std::string> options = {
   "Search teachers by name",
   "Search students by course",
   "Comprehensive search menu",
+  "Save data to file",
+  "Load data from file",
 };
 
 // Helper function to convert string to Grade pointer
@@ -72,6 +74,9 @@ void registerStudent(School& school) {
 
   std::cout << "Student registered successfully!" << std::endl;
   std::cout << "Student info: " << newStudent->toString() << std::endl;
+
+  // Auto-save after adding new student
+  school.saveToFile("school_data.txt");
 }
 
 // Display all students
@@ -121,6 +126,9 @@ void registerTeacher(School& school) {
 
   std::cout << "Teacher registered successfully!" << std::endl;
   std::cout << "Teacher info: " << newTeacher->toString() << std::endl;
+
+  // Auto-save after adding new teacher
+  school.saveToFile("school_data.txt");
 }
 
 // Display all teachers
@@ -282,6 +290,9 @@ void assignTeacherToNewCourse(School& school) {
   std::cout << "\n✓ Course created successfully!" << std::endl;
   std::cout << "Course info: " << newCourse->toString() << std::endl;
 
+  // Auto-save after adding new course
+  school.saveToFile("school_data.txt");
+
   // Show updated courses for this teacher
   auto updatedCourses = school.getCoursesByTeacherId(teacherId);
   std::cout << "\nTeacher " << selectedTeacher->getNames() << " " << selectedTeacher->getSurnames()
@@ -394,6 +405,9 @@ void markAssignmentAsPresented(School& school) {
   std::cout << "\n✓ Assignment '" << selectedAssignment->getName()
             << "' has been marked as presented!" << std::endl;
   std::cout << "Presentation Date: " << selectedAssignment->getPresentationDate().value() << std::endl;
+
+  // Auto-save after marking assignment as presented
+  school.saveToFile("school_data.txt");
 
   // Show updated summary
   auto updatedAssignments = school.getAllAssignmentsByStudentId(studentId);
@@ -633,6 +647,78 @@ void comprehensiveSearchMenu(School& school) {
   }
 }
 
+// Save data to file
+void saveDataToFile(School& school) {
+  std::cout << "\n--- Save Data to File ---" << std::endl;
+  std::string filename = getStringInput("Enter filename (or press Enter for 'school_data.txt'): ");
+
+  if (filename.empty()) {
+    filename = "school_data.txt";
+  }
+
+  if (school.saveToFile(filename)) {
+    std::cout << "✓ Data successfully saved to " << filename << std::endl;
+  } else {
+    std::cout << "✗ Error: Could not save data to " << filename << std::endl;
+  }
+}
+
+// Load data from file
+void loadDataFromFile(School& school) {
+  std::cout << "\n--- Load Data from File ---" << std::endl;
+  std::string filename = getStringInput("Enter filename (or press Enter for 'school_data.txt'): ");
+
+  if (filename.empty()) {
+    filename = "school_data.txt";
+  }
+
+  if (school.loadFromFile(filename)) {
+    std::cout << "✓ Data successfully loaded from " << filename << std::endl;
+    std::cout << "Students: " << school.getStudents().size() << std::endl;
+    std::cout << "Teachers: " << school.getTeachers().size() << std::endl;
+    std::cout << "Courses: " << school.getCourses().size() << std::endl;
+    std::cout << "Assignments: " << school.getAssignments().size() << std::endl;
+  } else {
+    std::cout << "✗ Error: Could not load data from " << filename << std::endl;
+    std::cout << "File may not exist or may be corrupted." << std::endl;
+  }
+}
+
+// Initialize school with auto-load or mock data
+School* initializeSchool() {
+  std::cout << "Initializing system..." << std::endl;
+
+  // Try to load from file first
+  School* school = new School({}, {}, {}, {});
+
+  if (school->loadFromFile("school_data.txt")) {
+    std::cout << "✓ Loaded existing data from school_data.txt" << std::endl;
+    std::cout << "Students: " << school->getStudents().size() << std::endl;
+    std::cout << "Teachers: " << school->getTeachers().size() << std::endl;
+    std::cout << "Courses: " << school->getCourses().size() << std::endl;
+    std::cout << "Assignments: " << school->getAssignments().size() << std::endl;
+  } else {
+    std::cout << "No existing data file found. Creating initial mock data..." << std::endl;
+
+    // Delete empty school and create with mock data
+    delete school;
+
+    // Create mock data using factory functions
+    std::vector<Student*> students = createMockStudents();
+    std::vector<Teacher*> teachers = createMockTeachers();
+    std::vector<Course*> courses = createMockCourses(teachers);
+    std::vector<Assignment*> assignments = createMockAssignments(students, courses);
+
+    school = new School(students, teachers, courses, assignments);
+
+    // Save initial mock data
+    school->saveToFile("school_data.txt");
+    std::cout << "✓ Initial data saved to school_data.txt" << std::endl;
+  }
+
+  return school;
+}
+
 int readOption() {
   std::cout << "\nChoose an option:" << std::endl;
   for (size_t i = 0; i < options.size(); i++) {
@@ -656,14 +742,9 @@ int readOption() {
 int main() {
   std::cout << "Welcome to Classroom Management System" << std::endl;
 
-  // Create mock data using factory functions
-  std::vector<Student*> students = createMockStudents();
-  std::vector<Teacher*> teachers = createMockTeachers();
-  std::vector<Course*> courses = createMockCourses(teachers);
-  std::vector<Assignment*> assignments = createMockAssignments(students, courses);
+  // Initialize school with auto-load or mock data
+  School* school = initializeSchool();
 
-  // School will take ownership and manage memory through its destructor
-  School school(students, teachers, courses, assignments);
   bool running = true;
   do {
     int option = readOption();
@@ -674,52 +755,64 @@ int main() {
 
     switch (option) {
       case 1:
-      registerStudent(school);
+      registerStudent(*school);
       break;
       case 2:
-      seeAllStudents(school);
+      seeAllStudents(*school);
       break;
       case 3:
-      registerTeacher(school);
+      registerTeacher(*school);
       break;
       case 4:
-      seeAllTeachers(school);
+      seeAllTeachers(*school);
       break;
       case 5:
-      searchAssignmentsPerStudent(school);
+      searchAssignmentsPerStudent(*school);
       break;
       case 6:
-        searchStudentsPerTeacher(school);
+        searchStudentsPerTeacher(*school);
         break;
       case 7:
-        assignTeacherToNewCourse(school);
+        assignTeacherToNewCourse(*school);
         break;
       case 8:
-        seeAllCoursesWithTeachers(school);
+        seeAllCoursesWithTeachers(*school);
         break;
       case 9:
-        markAssignmentAsPresented(school);
+        markAssignmentAsPresented(*school);
         break;
       case 10:
-        showAssignmentDeliveryStatistics(school);
+        showAssignmentDeliveryStatistics(*school);
         break;
       case 11:
-        showSpecificTeacherStatistics(school);
+        showSpecificTeacherStatistics(*school);
         break;
       case 12:
-        searchStudentById(school);
+        searchStudentById(*school);
         break;
       case 13:
-        searchTeachersByName(school);
+        searchTeachersByName(*school);
         break;
       case 14:
-        searchStudentsByCourse(school);
+        searchStudentsByCourse(*school);
         break;
       case 15:
-        comprehensiveSearchMenu(school);
+        comprehensiveSearchMenu(*school);
+        break;
+      case 16:
+        saveDataToFile(*school);
+        break;
+      case 17:
+        loadDataFromFile(*school);
         break;
       case 0:
         std::cout << "Exiting classroom management system..." << std::endl;
+        std::cout << "Automatically saving data before exit..." << std::endl;
+        if (school->saveToFile("school_data.txt")) {
+          std::cout << "✓ Data saved successfully!" << std::endl;
+        } else {
+          std::cout << "✗ Warning: Could not save data!" << std::endl;
+        }
         running = false;
         break;
       default:
@@ -728,6 +821,7 @@ int main() {
     }
   } while (running);
 
-  // School destructor will automatically clean up all dynamically allocated objects
+  // Clean up dynamically allocated school
+  delete school;
   return 0;
 }
