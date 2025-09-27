@@ -28,4 +28,7 @@ class School {
     const std::vector<Student*> getStudentsByTeacherId(const std::string& teacherId) const;
     const std::vector<Course*> getCoursesByTeacherId(const std::string& teacherId) const;
 
+    void showAssignmentDeliveryStatistics() const;
+    void showTeacherStatistics(const std::string& teacherId) const;
+
 };

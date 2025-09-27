@@ -16,6 +16,8 @@ std::vector<std::string> options = {
   "Assign teacher to new course",
   "See all courses with teachers",
   "Mark assignment as presented",
+  "Show assignment delivery statistics",
+  "Show specific teacher statistics",
 };
 
 // Helper function to convert string to Grade pointer
@@ -404,6 +406,19 @@ void markAssignmentAsPresented(School& school) {
             << updatedAssignments.size() << " assignments completed)" << std::endl;
 }
 
+// Show assignment delivery statistics
+void showAssignmentDeliveryStatistics(School& school) {
+  school.showAssignmentDeliveryStatistics();
+}
+
+// Show specific teacher statistics
+void showSpecificTeacherStatistics(School& school) {
+  std::cout << "\n--- Show Specific Teacher Statistics ---" << std::endl;
+
+  std::string teacherId = getStringInput("Enter teacher ID: ");
+  school.showTeacherStatistics(teacherId);
+}
+
 int readOption() {
   std::cout << "\nChoose an option:" << std::endl;
   for (size_t i = 0; i < options.size(); i++) {
@@ -470,6 +485,12 @@ int main() {
         break;
       case 9:
         markAssignmentAsPresented(school);
+        break;
+      case 10:
+        showAssignmentDeliveryStatistics(school);
+        break;
+      case 11:
+        showSpecificTeacherStatistics(school);
         break;
       case 0:
         std::cout << "Exiting classroom management system..." << std::endl;
