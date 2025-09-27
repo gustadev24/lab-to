@@ -11,6 +11,11 @@ Teacher::Teacher(std::string id, std::string names, std::string surnames, int ag
     this->responsibleOf = responsibleOf;
 }
 
+Teacher::Teacher(std::string id): Person(id) {
+    this->age = 0;
+    this->responsibleOf = std::nullopt;
+}
+
 int Teacher::getAge() {
     return this->age;
 }

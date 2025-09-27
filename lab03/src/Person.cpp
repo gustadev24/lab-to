@@ -6,6 +6,12 @@ Person::Person(std::string id, std::string names, std::string surnames) {
     this->surnames = surnames;
 }
 
+Person::Person(std::string id) {
+    this->id = id;
+    this->names = "";
+    this->surnames = "";
+}
+
 std::string Person::getId() {
     return this->id;
 }

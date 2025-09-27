@@ -12,6 +12,7 @@ class Teacher: public Person {
   public:
     Teacher(std::string id, std::string names, std::string surnames, int age);
     Teacher(std::string id, std::string names, std::string surnames, int age, Grade responsibleOf);
+    Teacher(std::string id);
 
     int getAge();
     std::optional<Grade> getResponsibleOf();

@@ -9,6 +9,7 @@ class Person {
 
   public:
     Person(std::string id, std::string names, std::string surnames);
+    Person(std::string id);
     std::string getId();
     std::string getNames();
     std::string getSurnames();

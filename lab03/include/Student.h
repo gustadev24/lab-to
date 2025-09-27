@@ -9,6 +9,7 @@ class Student: public Person {
 
   public:
     Student(std::string id, Grade grade, std::string names, std::string surnames);
+    Student(std::string id);
     Grade getGrade();
     std::string toString() override;
 };

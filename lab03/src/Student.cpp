@@ -5,6 +5,10 @@ Student::Student(std::string id, Grade grade, std::string names, std::string sur
   this->grade = grade;
 }
 
+Student::Student(std::string id): Person(id) {
+    this->grade = Grade::FIRST;
+}
+
 Grade Student::getGrade() {
     return this->grade;
 }
