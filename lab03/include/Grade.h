@@ -21,3 +21,10 @@ class Grade {
 
     bool operator==(const Grade& other) const;
 };
+
+inline const Grade Grade::FIRST = Grade("1", "First");
+inline const Grade Grade::SECOND = Grade("2", "Second");
+inline const Grade Grade::THIRD = Grade("3", "Third");
+inline const Grade Grade::FOURTH = Grade("4", "Fourth");
+inline const Grade Grade::FIFTH = Grade("5", "Fifth");
+inline const Grade Grade::SIXTH = Grade("6", "Sixth");
