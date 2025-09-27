@@ -18,4 +18,6 @@ class Grade {
     std::string getId();
     std::string getName();
     std::string toString();
+
+    bool operator==(const Grade& other) const;
 };

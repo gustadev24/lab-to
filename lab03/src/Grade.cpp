@@ -23,3 +23,7 @@ std::string Grade::getName() {
 std::string Grade::toString() {
     return "Grade{id='" + this->id + "', name='" + this->name + "'}";
 }
+
+bool Grade::operator==(const Grade& other) const {
+    return this->id == other.id;
+}
