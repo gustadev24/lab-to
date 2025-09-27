@@ -94,3 +94,15 @@ const std::vector<Student*> School::getStudentsByTeacherId(const std::string& te
     }
     return studentsByTeacher;
 }
+
+const std::vector<Course*> School::getCoursesByTeacherId(const std::string& teacherId) const {
+    std::vector<Course*> coursesByTeacher;
+
+    for (Course* course : this->courses) {
+        if (course->getTeacher()->getId() == teacherId) {
+            coursesByTeacher.push_back(course);
+        }
+    }
+
+    return coursesByTeacher;
+}

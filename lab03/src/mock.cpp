@@ -46,7 +46,14 @@ std::vector<Course*> createMockCourses(const std::vector<Teacher*>& teachers) {
     courses.push_back(new Course("C007", teachers[6], "English Literature", 3));
     courses.push_back(new Course("C008", teachers[7], "Computer Science", 4));
     courses.push_back(new Course("C009", teachers[8], "Art", 2));
-    courses.push_back(new Course("C010", teachers[0], "Physical Education", 1));
+    courses.push_back(new Course("C010", teachers[9], "Physical Education", 1));
+
+    // Demonstrate that teachers can teach multiple courses
+    courses.push_back(new Course("C011", teachers[0], "Advanced Mathematics", 4)); // Emily teaches 2 courses
+    courses.push_back(new Course("C012", teachers[1], "Advanced Physics", 3));     // Michael teaches 2 courses
+    courses.push_back(new Course("C013", teachers[7], "Programming Fundamentals", 3)); // Daniel teaches 2 courses
+    courses.push_back(new Course("C014", teachers[6], "Creative Writing", 2));     // Olivia teaches 2 courses
+
     return courses;
 }
 

@@ -25,5 +25,6 @@ class School {
 
     const std::vector<Assignment*> getPresentedAssignmentsByStudentId(const std::string& studentId) const;
     const std::vector<Student*> getStudentsByTeacherId(const std::string& teacherId) const;
+    const std::vector<Course*> getCoursesByTeacherId(const std::string& teacherId) const;
 
 };
