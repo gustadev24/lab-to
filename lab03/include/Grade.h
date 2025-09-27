@@ -1,3 +1,4 @@
+#pragma once
 enum Grade {
   FIRST,
   SECOND,
