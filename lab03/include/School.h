@@ -42,4 +42,9 @@ class School {
     bool loadFromFile(const std::string& filename);
     void clearData();
 
+    // Validation methods
+    bool isStudentIdUnique(const std::string& studentId) const;
+    bool isValidGrade(int gradeNumber) const;
+    bool teacherExists(const std::string& teacherId) const;
+
 };

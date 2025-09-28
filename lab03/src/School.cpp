@@ -558,3 +558,25 @@ void School::clearData() {
     }
     this->students.clear();
 }
+
+bool School::isStudentIdUnique(const std::string& studentId) const {
+    for (Student* student : this->students) {
+        if (student->getId() == studentId) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool School::isValidGrade(int gradeNumber) const {
+    return gradeNumber >= 1 && gradeNumber <= 6;
+}
+
+bool School::teacherExists(const std::string& teacherId) const {
+    for (Teacher* teacher : this->teachers) {
+        if (teacher->getId() == teacherId) {
+            return true;
+        }
+    }
+    return false;
+}

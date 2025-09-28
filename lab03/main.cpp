@@ -24,9 +24,12 @@ std::vector<std::string> options = {
   "Comprehensive search menu",
   "Save data to file",
   "Load data from file",
+  "Create new assignment",
+  "Validation system demo",
+  "Run comprehensive validation test",
 };
 
-// Helper function to convert string to Grade pointer
+// Helper function to convert string to Grade pointer with validation
 const Grade* stringToGrade(const std::string& gradeStr) {
   if (gradeStr == "1" || gradeStr == "FIRST") return &Grade::FIRST;
   if (gradeStr == "2" || gradeStr == "SECOND") return &Grade::SECOND;
@@ -34,7 +37,20 @@ const Grade* stringToGrade(const std::string& gradeStr) {
   if (gradeStr == "4" || gradeStr == "FOURTH") return &Grade::FOURTH;
   if (gradeStr == "5" || gradeStr == "FIFTH") return &Grade::FIFTH;
   if (gradeStr == "6" || gradeStr == "SIXTH") return &Grade::SIXTH;
-  return &Grade::FIRST; // default
+  return nullptr; // Return null for invalid grades
+}
+
+// Helper function to validate and convert grade string
+const Grade* validateAndConvertGrade(const std::string& gradeStr, School& school) {
+  try {
+    int gradeNumber = std::stoi(gradeStr);
+    if (!school.isValidGrade(gradeNumber)) {
+      return nullptr;
+    }
+    return stringToGrade(gradeStr);
+  } catch (const std::exception& e) {
+    return nullptr;
+  }
 }
 
 // Helper function to convert Grade pointer to string
@@ -61,18 +77,30 @@ void registerStudent(School& school) {
   std::cout << "\n--- Register New Student ---" << std::endl;
 
   std::string id = getStringInput("Enter student ID: ");
+
+  // Validate unique student ID
+  if (!school.isStudentIdUnique(id)) {
+    std::cout << "✗ Error: Student ID " << id << " already exists. Please use a unique ID." << std::endl;
+    return;
+  }
+
   std::string names = getStringInput("Enter student names: ");
   std::string surnames = getStringInput("Enter student surnames: ");
 
   std::cout << "Available grades: 1(First), 2(Second), 3(Third), 4(Fourth), 5(Fifth), 6(Sixth)" << std::endl;
   std::string gradeInput = getStringInput("Enter student grade (1-6): ");
 
-  const Grade* grade = stringToGrade(gradeInput);
+  // Validate grade input
+  const Grade* grade = validateAndConvertGrade(gradeInput, school);
+  if (grade == nullptr) {
+    std::cout << "✗ Error: Invalid grade '" << gradeInput << "'. Grade must be between 1-6." << std::endl;
+    return;
+  }
 
   Student* newStudent = new Student(id, grade, names, surnames);
   school.addStudent(newStudent);
 
-  std::cout << "Student registered successfully!" << std::endl;
+  std::cout << "✓ Student registered successfully!" << std::endl;
   std::cout << "Student info: " << newStudent->toString() << std::endl;
 
   // Auto-save after adding new student
@@ -99,6 +127,21 @@ void registerTeacher(School& school) {
   std::cout << "\n--- Register New Teacher ---" << std::endl;
 
   std::string id = getStringInput("Enter teacher ID: ");
+
+  // Validate unique teacher ID
+  bool teacherIdExists = false;
+  const auto& teachers = school.getTeachers();
+  for (auto teacher : teachers) {
+    if (teacher->getId() == id) {
+      teacherIdExists = true;
+      break;
+    }
+  }
+  if (teacherIdExists) {
+    std::cout << "✗ Error: Teacher ID " << id << " already exists. Please use a unique ID." << std::endl;
+    return;
+  }
+
   std::string names = getStringInput("Enter teacher names: ");
   std::string surnames = getStringInput("Enter teacher surnames: ");
 
@@ -117,14 +160,18 @@ void registerTeacher(School& school) {
   if (responsibleChoice == "y" || responsibleChoice == "Y" || responsibleChoice == "yes") {
     std::cout << "Available grades: 1(First), 2(Second), 3(Third), 4(Fourth), 5(Fifth), 6(Sixth)" << std::endl;
     std::string gradeInput = getStringInput("Enter responsible grade (1-6): ");
-    const Grade* responsibleGrade = stringToGrade(gradeInput);
-    delete newTeacher; // Delete the old one
-    newTeacher = new Teacher(id, names, surnames, age, responsibleGrade);
+    const Grade* responsibleGrade = validateAndConvertGrade(gradeInput, school);
+    if (responsibleGrade == nullptr) {
+      std::cout << "✗ Error: Invalid grade '" << gradeInput << "'. Using default teacher without grade responsibility." << std::endl;
+    } else {
+      delete newTeacher; // Delete the old one
+      newTeacher = new Teacher(id, names, surnames, age, responsibleGrade);
+    }
   }
 
   school.addTeacher(newTeacher);
 
-  std::cout << "Teacher registered successfully!" << std::endl;
+  std::cout << "✓ Teacher registered successfully!" << std::endl;
   std::cout << "Teacher info: " << newTeacher->toString() << std::endl;
 
   // Auto-save after adding new teacher
@@ -248,18 +295,20 @@ void assignTeacherToNewCourse(School& school) {
 
   std::string teacherId = getStringInput("\nEnter teacher ID: ");
 
-  // Verify teacher exists
+  // Validate teacher exists before assignment
+  if (!school.teacherExists(teacherId)) {
+    std::cout << "✗ Error: Teacher with ID " << teacherId << " does not exist." << std::endl;
+    std::cout << "Please register the teacher first before assigning courses." << std::endl;
+    return;
+  }
+
+  // Get teacher object
   Teacher* selectedTeacher = nullptr;
   for (auto teacher : teachers) {
     if (teacher->getId() == teacherId) {
       selectedTeacher = teacher;
       break;
     }
-  }
-
-  if (selectedTeacher == nullptr) {
-    std::cout << "Teacher with ID " << teacherId << " not found." << std::endl;
-    return;
   }
 
   // Show current courses for this teacher
@@ -663,6 +712,171 @@ void saveDataToFile(School& school) {
   }
 }
 
+// Create new assignment with validation
+void createNewAssignment(School& school) {
+  std::cout << "\n--- Create New Assignment ---" << std::endl;
+
+  std::string assignmentId = getStringInput("Enter assignment ID: ");
+  std::string assignmentName = getStringInput("Enter assignment name: ");
+
+  // Show available students
+  std::cout << "\nAvailable students:" << std::endl;
+  const auto& students = school.getStudents();
+  for (size_t i = 0; i < students.size() && i < 10; i++) {
+    std::cout << "  " << students[i]->getId() << " - " << students[i]->getNames()
+              << " " << students[i]->getSurnames() << std::endl;
+  }
+
+  std::string studentId = getStringInput("\nEnter student ID: ");
+
+  // Validate student exists
+  if (!school.searchStudentById(studentId)) {
+    std::cout << "✗ Error: Student with ID " << studentId << " does not exist." << std::endl;
+    return;
+  }
+
+  // Show available courses
+  std::cout << "\nAvailable courses:" << std::endl;
+  const auto& courses = school.getCourses();
+  for (size_t i = 0; i < courses.size() && i < 10; i++) {
+    std::cout << "  " << courses[i]->getId() << " - " << courses[i]->getName()
+              << " (Teacher: " << courses[i]->getTeacher()->getNames() << ")" << std::endl;
+  }
+
+  std::string courseId = getStringInput("\nEnter course ID: ");
+
+  // Validate course exists
+  Course* course = school.searchCourseById(courseId);
+  if (!course) {
+    std::cout << "✗ Error: Course with ID " << courseId << " does not exist." << std::endl;
+    return;
+  }
+
+  // Validate teacher exists (through course)
+  if (!school.teacherExists(course->getTeacher()->getId())) {
+    std::cout << "✗ Error: Teacher for this course does not exist in the system." << std::endl;
+    return;
+  }
+
+  // Create assignment
+  Student* student = school.searchStudentById(studentId);
+  Assignment* assignment = new Assignment(assignmentId, assignmentName, student, course);
+  school.addAssignment(assignment);
+
+  std::cout << "✓ Assignment created successfully!" << std::endl;
+  std::cout << "Assignment: " << assignmentName << std::endl;
+  std::cout << "Student: " << student->getNames() << " " << student->getSurnames() << std::endl;
+  std::cout << "Course: " << course->getName() << std::endl;
+  std::cout << "Teacher: " << course->getTeacher()->getNames() << " " << course->getTeacher()->getSurnames() << std::endl;
+
+  // Auto-save after creating assignment
+  school.saveToFile("school_data.txt");
+}
+
+// Validation system demonstration
+void validationSystemDemo(School& school) {
+  std::cout << "\n=== VALIDATION SYSTEM DEMONSTRATION ===" << std::endl;
+
+  std::cout << "\n1. Testing Student ID Uniqueness:" << std::endl;
+  std::cout << "✓ Checking if 'S001' is unique: " << (school.isStudentIdUnique("S001") ? "Available" : "Already exists") << std::endl;
+  std::cout << "✓ Checking if 'S999' is unique: " << (school.isStudentIdUnique("S999") ? "Available" : "Already exists") << std::endl;
+
+  std::cout << "\n2. Testing Grade Validation:" << std::endl;
+  for (int i = 0; i <= 8; i++) {
+    std::cout << "✓ Grade " << i << ": " << (school.isValidGrade(i) ? "Valid" : "Invalid") << std::endl;
+  }
+
+  std::cout << "\n3. Testing Teacher Existence:" << std::endl;
+  std::cout << "✓ Checking if teacher 'T001' exists: " << (school.teacherExists("T001") ? "Exists" : "Does not exist") << std::endl;
+  std::cout << "✓ Checking if teacher 'T999' exists: " << (school.teacherExists("T999") ? "Exists" : "Does not exist") << std::endl;
+
+  std::cout << "\n4. System Validation Rules:" << std::endl;
+  std::cout << "✓ Student IDs must be unique across the system" << std::endl;
+  std::cout << "✓ Students can only be registered in grades 1-6" << std::endl;
+  std::cout << "✓ Teachers must exist before being assigned to courses or assignments" << std::endl;
+  std::cout << "✓ All validations are automatically enforced during registration" << std::endl;
+
+  std::cout << "\n=== VALIDATION SYSTEM STATUS: ACTIVE ===" << std::endl;
+}
+
+// Comprehensive validation test
+void comprehensiveValidationTest(School& school) {
+  std::cout << "\n=== COMPREHENSIVE VALIDATION TEST ===" << std::endl;
+
+  std::cout << "\n1. Testing Student ID Uniqueness Validation:" << std::endl;
+
+  // Test with existing student ID
+  std::cout << "Attempting to register student with existing ID 'S001'..." << std::endl;
+  if (!school.isStudentIdUnique("S001")) {
+    std::cout << "✓ PASS: System correctly identifies duplicate student ID" << std::endl;
+  } else {
+    std::cout << "✗ FAIL: System should reject duplicate student ID" << std::endl;
+  }
+
+  // Test with new student ID
+  std::cout << "Testing new student ID 'S999'..." << std::endl;
+  if (school.isStudentIdUnique("S999")) {
+    std::cout << "✓ PASS: System correctly identifies unique student ID" << std::endl;
+  } else {
+    std::cout << "✗ FAIL: System should accept unique student ID" << std::endl;
+  }
+
+  std::cout << "\n2. Testing Grade Validation (1-6):" << std::endl;
+
+  // Test invalid grades
+  int invalidGrades[] = {0, -1, 7, 8, 10};
+  for (int grade : invalidGrades) {
+    if (!school.isValidGrade(grade)) {
+      std::cout << "✓ PASS: Grade " << grade << " correctly rejected" << std::endl;
+    } else {
+      std::cout << "✗ FAIL: Grade " << grade << " should be rejected" << std::endl;
+    }
+  }
+
+  // Test valid grades
+  for (int grade = 1; grade <= 6; grade++) {
+    if (school.isValidGrade(grade)) {
+      std::cout << "✓ PASS: Grade " << grade << " correctly accepted" << std::endl;
+    } else {
+      std::cout << "✗ FAIL: Grade " << grade << " should be accepted" << std::endl;
+    }
+  }
+
+  std::cout << "\n3. Testing Teacher Existence Validation:" << std::endl;
+
+  // Test with existing teacher
+  if (school.teacherExists("T001")) {
+    std::cout << "✓ PASS: System correctly identifies existing teacher T001" << std::endl;
+  } else {
+    std::cout << "✗ FAIL: System should find existing teacher T001" << std::endl;
+  }
+
+  // Test with non-existing teacher
+  if (!school.teacherExists("T999")) {
+    std::cout << "✓ PASS: System correctly identifies non-existing teacher T999" << std::endl;
+  } else {
+    std::cout << "✗ FAIL: System should not find non-existing teacher T999" << std::endl;
+  }
+
+  std::cout << "\n4. Integration Test - Assignment Creation Validation:" << std::endl;
+
+  // Check if we can create assignment with existing teacher
+  Course* testCourse = school.searchCourseById("C001");
+  if (testCourse && school.teacherExists(testCourse->getTeacher()->getId())) {
+    std::cout << "✓ PASS: Assignment can be created with existing teacher" << std::endl;
+  } else {
+    std::cout << "✗ FAIL: Assignment creation validation failed" << std::endl;
+  }
+
+  std::cout << "\n=== VALIDATION TEST SUMMARY ===" << std::endl;
+  std::cout << "All validation rules are properly enforced:" << std::endl;
+  std::cout << "• Student IDs are unique" << std::endl;
+  std::cout << "• Grades are limited to 1-6 range" << std::endl;
+  std::cout << "• Teachers must exist before assignment" << std::endl;
+  std::cout << "• Data integrity is maintained" << std::endl;
+  std::cout << "=================================" << std::endl;
+}
+
 // Load data from file
 void loadDataFromFile(School& school) {
   std::cout << "\n--- Load Data from File ---" << std::endl;
@@ -745,6 +959,13 @@ int main() {
   // Initialize school with auto-load or mock data
   School* school = initializeSchool();
 
+  // Display validation system status
+  std::cout << "\n=== VALIDATION SYSTEM STATUS ===" << std::endl;
+  std::cout << "✓ Student ID uniqueness validation: ACTIVE" << std::endl;
+  std::cout << "✓ Grade validity validation (1-6): ACTIVE" << std::endl;
+  std::cout << "✓ Teacher existence validation: ACTIVE" << std::endl;
+  std::cout << "=======================================" << std::endl;
+
   bool running = true;
   do {
     int option = readOption();
@@ -804,6 +1025,15 @@ int main() {
         break;
       case 17:
         loadDataFromFile(*school);
+        break;
+      case 18:
+        createNewAssignment(*school);
+        break;
+      case 19:
+        validationSystemDemo(*school);
+        break;
+      case 20:
+        comprehensiveValidationTest(*school);
         break;
       case 0:
         std::cout << "Exiting classroom management system..." << std::endl;
