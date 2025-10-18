@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include <QApplication>
+#include "adulto.h"
 
 int main(int argc, char *argv[])
 {
@@ -8,21 +9,12 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-    int x = 47;
-    double y = 3.2478;
-    char t = 'O';
-
-    QString qtcadena = QString("%1 %2 %3").arg(t).arg(y).arg(x);
-
-    std::string cadena = qtcadena.toStdString();
-
-    qDebug() << cadena.c_str();
-    qDebug() << qtcadena;
-
-    qtcadena = "arequipa ciudad blanca 2021";
-
-    qDebug() << qtcadena.contains("ciudad");
-    qDebug() << qtcadena.indexOf("2021");
+    Adulto *papa = new Adulto;
+    Adulto *hijo1 = new Adulto(papa);
+    Adulto *hijo2 = new Adulto(papa);
+    hijo1->setNombre("Manuel");
+    hijo2->setNombre("Jose");
+    delete papa;
 
     return a.exec();
 }
