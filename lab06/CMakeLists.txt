@@ -21,11 +21,13 @@ set(PROJECT_SOURCES
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
     qt_add_executable(lab06
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         adulto.h adulto.cpp
+        comunicacion.h comunicacion.cpp
 
     )
 # Define target properties for Android with Qt 6 as:
@@ -47,6 +49,7 @@ else()
 endif()
 
 target_link_libraries(lab06 PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(lab06 PRIVATE Qt6::Core)
 target_link_libraries(lab06 PRIVATE Qt6::Core)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
