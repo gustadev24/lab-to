@@ -28,6 +28,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
         ${PROJECT_SOURCES}
         adulto.h adulto.cpp
         comunicacion.h comunicacion.cpp
+        task.h task.cpp task.ui
 
     )
 # Define target properties for Android with Qt 6 as:
