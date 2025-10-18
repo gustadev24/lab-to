@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "task.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -20,8 +21,11 @@ public:
 private:
     Ui::MainWindow *ui;
     void changeSelectedColorTo(QString label, Qt::GlobalColor hexColor);
+    Task *task;
 public slots:
     void addTask();
+private slots:
+    void handleFormData(const QString &text);
 
 };
 #endif // MAINWINDOW_H

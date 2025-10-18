@@ -14,7 +14,8 @@ class Task : public QWidget
 public:
     explicit Task(QWidget *parent = nullptr);
     ~Task();
-
+signals:
+    void dataSubmitted(QString text);
 private:
     Ui::Task *ui;
 };

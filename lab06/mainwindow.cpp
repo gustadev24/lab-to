@@ -21,6 +21,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     });
 
+    task = new Task();
+
+    connect(task, &Task::dataSubmitted, this, &MainWindow::handleFormData);
+
+    connect(ui->openForm, &QPushButton::clicked, task, &QWidget::show);
+}
+
+void MainWindow::handleFormData(const QString &text) {
+    ui->formResponse->setText(text);
 }
 
 void MainWindow::changeSelectedColorTo(QString label, Qt::GlobalColor color) {
