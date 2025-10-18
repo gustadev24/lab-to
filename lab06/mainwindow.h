@@ -19,7 +19,9 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    void changeSelectedColorTo(QString label, Qt::GlobalColor hexColor);
 public slots:
     void addTask();
+
 };
 #endif // MAINWINDOW_H
