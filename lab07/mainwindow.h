@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "task.h"
+#include "country.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,5 +26,6 @@ public slots:
 private:
     Ui::MainWindow *ui;
     QVector<Task*> mTasks;
+    QVector<Country*> countries;
 };
 #endif // MAINWINDOW_H
