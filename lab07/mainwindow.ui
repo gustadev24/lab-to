@@ -30,8 +30,8 @@
    <widget class="QPushButton" name="addTaskButton">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>50</y>
+      <x>430</x>
+      <y>20</y>
       <width>111</width>
       <height>23</height>
      </rect>
@@ -44,9 +44,9 @@
     <property name="geometry">
      <rect>
       <x>80</x>
-      <y>90</y>
-      <width>160</width>
-      <height>80</height>
+      <y>60</y>
+      <width>461</width>
+      <height>161</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="tasksLayout"/>
