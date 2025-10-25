@@ -17,6 +17,8 @@ public:
 
 private:
     Ui::Task *ui;
+signals:
+    void removed(Task* task);
 };
 
 #endif // TASK_H
