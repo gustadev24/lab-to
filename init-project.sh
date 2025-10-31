@@ -26,7 +26,10 @@ fi
 mkdir -p "$project_dir"/{tests,src,include}
 cd "$project_dir"
 
-# Check if libgtest is installed
+# Create a cpp file named app.cpp in src and app.h in include
+touch src/main.cpp include/app.h
+
+# Check libgtest installation
 if [ ! -d "/usr/src/gtest" ]; then
     echo "⚠️ libgtest not found. Please make sure it is installed."
 fi
