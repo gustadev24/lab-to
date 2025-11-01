@@ -1,10 +1,13 @@
 #include "include/aritmetica.h"
+#include "include/mayor.h"
 #include <iostream>
 
 int main() {
   std::cout << "Welcome to Templates!" << std::endl;
-  std::cout << aritmetica<int>(10, 45) << std::endl;
-  std::cout << aritmetica<double>(3.45, 8.10) << std::endl;
-  std::cout << aritmetica<float>(0.14f, 0.147f) << std::endl;
+  char x = mayorDe<char>('e', 'z');
+  int y = mayorDe<int>(9, 4);
+
+  std::cout << "Caracter mayor: " << x << std::endl;
+  std::cout << "Numero mayor: " << y << std::endl;
   return 0;
 }
