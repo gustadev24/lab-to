@@ -1,14 +1,17 @@
-#include "include/contenedor.h"
+#include "include/pila.h"
 #include <iostream>
 
 int main() {
   std::cout << "Welcome to Templates!" << std::endl;
-  Contenedor<int> z;
-  z.metodo2(10, 0);
-  z.metodo2(50, 1);
-  z.metodo2(60, 2);
-  z.metodo2(70, 3);
+  Pila<int> pila1(4);
+  pila1.insertar(1);
+  pila1.insertar(3);
+  pila1.mostrarPila();
 
-  z.mostrar();
+  Pila<char> pila2(4);
+  pila2.insertar('a');
+  pila2.insertar('b');
+  pila2.insertar('c');
+  pila2.mostrarPila();
   return 0;
 }
